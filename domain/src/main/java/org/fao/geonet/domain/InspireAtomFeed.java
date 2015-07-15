@@ -226,7 +226,8 @@ public class InspireAtomFeed extends GeonetEntity implements Serializable {
         List<Element> entryList = atomDoc.getChildren("entry", ns);
         for(Element entry : entryList) {
             for(Element linkEl : (List<Element>) entry.getChildren("link", ns)) {
-                if (linkEl.getAttributeValue("rel").equals("alternate")) {
+                if (linkEl.getAttributeValue("rel") != null &&
+                        linkEl.getAttributeValue("rel").equals("alternate")) {
                     InspireAtomFeedEntry inspireAtomFeedEntry = new InspireAtomFeedEntry();
 
                     inspireAtomFeedEntry.setTitle(entry.getChildText("title", ns));
