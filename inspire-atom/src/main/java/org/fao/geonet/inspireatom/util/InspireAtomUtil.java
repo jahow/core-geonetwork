@@ -32,6 +32,7 @@ import org.fao.geonet.kernel.search.LuceneSearcher;
 import org.fao.geonet.kernel.search.MetaSearcher;
 import org.fao.geonet.kernel.search.SearchManager;
 import org.fao.geonet.kernel.search.SearcherType;
+import org.fao.geonet.services.util.z3950.Repositories;
 import org.fao.geonet.utils.GeonetHttpRequestFactory;
 import org.fao.geonet.utils.Xml;
 import org.fao.geonet.utils.XmlRequest;
@@ -42,8 +43,10 @@ import org.fao.geonet.kernel.setting.SettingManager;
 import org.fao.geonet.lib.Lib;
 import org.jdom.Element;
 import org.jdom.Namespace;
+import org.jdom.output.XMLOutputter;
 
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.*;
 
 /**
@@ -61,6 +64,9 @@ public class InspireAtomUtil {
 
     /** Xslt process to get the atom feed link from the metadata. **/
     private static final String EXTRACT_ATOM_FEED = "extract-atom-feed.xsl";
+
+    /** Xslt process to get the atom feed link from the metadata. **/
+    private static final String ISO1919_TO_ATOM_FEED = "iso19119ToAtomFeed.xsl";
 
     /**
      * Issue an http request to retrieve the remote Atom feed document.
@@ -301,5 +307,20 @@ public class InspireAtomUtil {
         }
 
         return uuid;
+    }
+
+    public static String convertIso19119ToAtomFeed(final String schema,
+                                            final Element md,
+                                            final DataManager dataManager)
+            throws Exception {
+
+        java.nio.file.Path styleSheet = dataManager.getSchemaDir(schema).
+                resolve("convert/ATOM/").resolve(ISO1919_TO_ATOM_FEED);
+
+        Element atomFeed = Xml.transform(md, styleSheet);
+        md.detach();
+        XMLOutputter outp = new XMLOutputter();
+        return outp.outputString(atomFeed);
+
     }
 }
