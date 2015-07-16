@@ -28,6 +28,7 @@ import jeeves.server.context.ServiceContext;
 import org.fao.geonet.GeonetContext;
 import org.fao.geonet.constants.Geonet;
 import org.fao.geonet.domain.Metadata;
+import org.fao.geonet.exceptions.MetadataNotFoundEx;
 import org.fao.geonet.kernel.search.LuceneSearcher;
 import org.fao.geonet.kernel.search.MetaSearcher;
 import org.fao.geonet.kernel.search.SearchManager;
@@ -66,7 +67,7 @@ public class InspireAtomUtil {
     private static final String EXTRACT_ATOM_FEED = "extract-atom-feed.xsl";
 
     /** Xslt process to get the atom feed link from the metadata. **/
-    private static final String ISO1919_TO_ATOM_FEED = "iso19119ToAtomFeed.xsl";
+    private static final String ISO1919_TO_ATOM_FEED = "inspire-atom-feed.xsl";
 
     /**
      * Issue an http request to retrieve the remote Atom feed document.
@@ -307,6 +308,35 @@ public class InspireAtomUtil {
         }
 
         return uuid;
+    }
+
+    public static Element createInputElement(final String schema,
+                                             final Element md,
+                                             final DataManager dataManager,
+                                             final String baseUrl,
+                                             final String lang)
+            throws Exception {
+
+        List<String> datasetsUuids = extractRelatedDatasetsIdentifiers(schema, md, dataManager);
+        Element root = new Element("root");
+        Element serviceElt = new Element("service");
+        Element datasetElt = new Element("datasets");
+
+        root.addContent(new Element("baseurl").setText(baseUrl));
+        root.addContent(new Element("lang").setText(lang));
+        root.addContent(serviceElt);
+        md.addContent(datasetElt);
+
+        for(String uuid : datasetsUuids) {
+            String id = dataManager.getMetadataId(uuid);
+            if (StringUtils.isEmpty(id)) throw new MetadataNotFoundEx(uuid);
+            Element ds = dataManager.getMetadata(id);
+            datasetElt.addContent(ds);
+
+        }
+        serviceElt.addContent(md);
+
+        return root;
     }
 
     public static String convertIso19119ToAtomFeed(final String schema,

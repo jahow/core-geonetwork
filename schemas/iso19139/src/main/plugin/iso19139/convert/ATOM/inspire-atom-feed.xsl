@@ -13,10 +13,10 @@
                 xmlns:opensearchextensions="http://example.com/opensearchextensions/1.0/"
                 xmlns:inspire_dls="http://inspire.ec.europa.eu/schemas/inspire_dls/1.0"
                 exclude-result-prefixes="gmx xsl gmd gco srv java">
-  <xsl:variable name="protocol">WWW:DOWNLOAD-1.0-HTTP--DOWNLOAD</xsl:variable>
+  <xsl:variable name="protocol">WWW:DOWNLOAD-1.0-http--download</xsl:variable>
   <xsl:variable name="applicationProfile">INSPIRE-Download-Atom</xsl:variable>
-  <xsl:variable name="guiLang" select="/root/gui/language"/>
-  <xsl:variable name="baseUrl" select="concat('http://',/root/gui/env/server/host,/root/gui/url)"/>
+  <xsl:variable name="guiLang" select="/root/lang"/>
+  <xsl:variable name="baseUrl" select="/root/baseurl"/>
 
   <xsl:template match="/root">
     <atom:feed xsi:schemaLocation="http://www.w3.org/2005/Atom http://inspire-geoportal.ec.europa.eu/schemas/inspire/atom/1.0/atom.xsd" xml:lang="en">
@@ -88,8 +88,8 @@
     </atom:author>
     <xsl:for-each select="datasets/gmd:MD_Metadata">
       <atom:entry>
-        <inspire_dls:spatial_dataset_identifier_code><xsl:value-of select="gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString|gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier/gmd:code/gco:CharacterString"/></inspire_dls:spatial_dataset_identifier_code>
-        <inspire_dls:spatial_dataset_identifier_namespace><xsl:value-of select="gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:codeSpace/gco:CharacterString|gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier/gmd:codeSpace/gco:CharacterString"/></inspire_dls:spatial_dataset_identifier_namespace>
+        <inspire_dls:spatial_dataset_identifier_code><xsl:value-of select="gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString|gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier/gmd:code/gco:CharacterString"/></inspire_dls:spatial_dataset_identifier_code>
+        <inspire_dls:spatial_dataset_identifier_namespace><xsl:value-of select="gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:codeSpace/gco:CharacterString|gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier/gmd:codeSpace/gco:CharacterString"/></inspire_dls:spatial_dataset_identifier_namespace>
         <xsl:apply-templates mode="dataset" select=".">
           <xsl:with-param name="isServiceEntry" select="true()"/>
         </xsl:apply-templates>
@@ -101,10 +101,10 @@
     <xsl:param name="isServiceEntry"/>
     <xsl:variable name="fileIdentifier" select="gmd:fileIdentifier/gco:CharacterString"/>
     <xsl:variable name="docLang" select="gmd:language/gmd:LanguageCode/@codeListValue"/>
-    <xsl:variable name="datasetTitleNode" select="gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title"/>
+    <xsl:variable name="datasetTitleNode" select="gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title"/>
     <xsl:variable name="datasetTitle"><xsl:apply-templates mode="get-translation" select="$datasetTitleNode"><xsl:with-param name="lang" select="$guiLang"/></xsl:apply-templates></xsl:variable>
-    <xsl:variable name="identifierCode" select="gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString|gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier/gmd:code/gco:CharacterString"/>
-    <xsl:variable name="identifierCodeSpace" select="gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:codeSpace/gco:CharacterString|gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier/gmd:codeSpace/gco:CharacterString"/>
+    <xsl:variable name="identifierCode" select="gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString|gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier/gmd:code/gco:CharacterString"/>
+    <xsl:variable name="identifierCodeSpace" select="gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:codeSpace/gco:CharacterString|gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier/gmd:codeSpace/gco:CharacterString"/>
     <xsl:variable name="updated" select="gco:DateTime"/>
     <xsl:if test="not($isServiceEntry)">
       <atom:title><xsl:call-template name="translated-description"><xsl:with-param name="lang" select="$guiLang"/><xsl:with-param name="type" select="3"/></xsl:call-template><xsl:text> </xsl:text><xsl:value-of select="$datasetTitle"/></atom:title>
@@ -117,8 +117,8 @@
         <atom:category term="{$crs}" label="{$crsLabel}"/>
       </xsl:for-each>
     </xsl:if>
-    <xsl:variable name="authorName" select="gmd:MD_DataIdentification/gmd:pointOfContact[1]/gmd:CI_ResponsibleParty/gmd:organisationName/gco:CharacterString"/>
-    <xsl:variable name="authorEmail" select="gmd:MD_DataIdentification/gmd:pointOfContact[1]/gmd:CI_ResponsibleParty/gmd:contactInfo/gmd:CI_Contact/gmd:address/*[name(.)='gmd:CI_Address' or @gco:isoType='CI_Address_Type']/gmd:electronicMailAddress/gco:CharacterString"/>
+    <xsl:variable name="authorName" select="gmd:identificationInfo/gmd:MD_DataIdentification/gmd:pointOfContact[1]/gmd:CI_ResponsibleParty/gmd:organisationName/gco:CharacterString"/>
+    <xsl:variable name="authorEmail" select="gmd:identificationInfo/gmd:MD_DataIdentification/gmd:pointOfContact[1]/gmd:CI_ResponsibleParty/gmd:contactInfo/gmd:CI_Contact/gmd:address/*[name(.)='gmd:CI_Address' or @gco:isoType='CI_Address_Type']/gmd:electronicMailAddress/gco:CharacterString"/>
     <xsl:if test="$isServiceEntry">
       <atom:author>
         <atom:name><xsl:value-of select="$authorName"/></atom:name>
@@ -182,9 +182,9 @@
         </xsl:attribute>
       </atom:link>
     </xsl:if>
-    <atom:rights><xsl:apply-templates mode="translated-rights" select="gmd:MD_DataIdentification"/></atom:rights>
+    <atom:rights><xsl:apply-templates mode="translated-rights" select="gmd:identificationInfo/gmd:MD_DataIdentification"/></atom:rights>
     <xsl:if test="$isServiceEntry">
-      <atom:summary><xsl:apply-templates mode="get-translation" select="gmd:MD_DataIdentification/gmd:abstract"><xsl:with-param name="lang" select="$guiLang"/></xsl:apply-templates></atom:summary>
+      <atom:summary><xsl:apply-templates mode="get-translation" select="gmd:identificationInfo/gmd:MD_DataIdentification/gmd:abstract"><xsl:with-param name="lang" select="$guiLang"/></xsl:apply-templates></atom:summary>
       <atom:title><xsl:call-template name="translated-description"><xsl:with-param name="lang" select="$guiLang"/><xsl:with-param name="type" select="3"/></xsl:call-template><xsl:text> </xsl:text><xsl:value-of select="$datasetTitle"/></atom:title>
     </xsl:if>
     <atom:updated><xsl:value-of select="$updated"/>Z</atom:updated>

@@ -109,7 +109,11 @@ public class AtomFeed {
             throw new Exception("No service metadata found with uuid:" + uuid);
         }
 
-        String atomFeed = InspireAtomUtil.convertIso19119ToAtomFeed(schema, md, dm);
+        String baseUrl = sm.getSiteURL(context);
+        baseUrl = baseUrl.substring(0, baseUrl.length()-5);
+        String lang = context.getLanguage();
+        Element inputDoc = InspireAtomUtil.createInputElement(schema, md, dm, baseUrl, lang);
+        String atomFeed = InspireAtomUtil.convertIso19119ToAtomFeed(schema, inputDoc, dm);
         return writeOutResponse(atomFeed);
 
 
