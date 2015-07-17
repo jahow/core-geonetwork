@@ -104,7 +104,6 @@ public class AtomFeed {
         String lang = context.getLanguage();
         Element inputDoc = InspireAtomUtil.createInputElement(schema, md, dm, baseUrl, lang);
         String atomFeed = InspireAtomUtil.convertIso19119ToAtomFeed(schema, inputDoc, dm, true);
-        System.out.println(atomFeed);
         
         return writeOutResponse(atomFeed);
     }
