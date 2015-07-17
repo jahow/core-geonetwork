@@ -17,6 +17,7 @@
   <xsl:variable name="applicationProfile">INSPIRE-Download-Atom</xsl:variable>
   <xsl:variable name="guiLang" select="/root/lang"/>
   <xsl:variable name="baseUrl" select="/root/baseurl"/>
+  <xsl:variable name="isLocal" select="false()" />
 
   <xsl:template match="/root">
     <atom:feed xsi:schemaLocation="http://www.w3.org/2005/Atom http://inspire-geoportal.ec.europa.eu/schemas/inspire/atom/1.0/atom.xsd" xml:lang="en">
@@ -88,8 +89,12 @@
     </atom:author>
     <xsl:for-each select="datasets/gmd:MD_Metadata">
       <atom:entry>
-        <inspire_dls:spatial_dataset_identifier_code><xsl:value-of select="gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString|gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier/gmd:code/gco:CharacterString"/></inspire_dls:spatial_dataset_identifier_code>
-        <inspire_dls:spatial_dataset_identifier_namespace><xsl:value-of select="gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:codeSpace/gco:CharacterString|gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier/gmd:codeSpace/gco:CharacterString"/></inspire_dls:spatial_dataset_identifier_namespace>
+        <inspire_dls:spatial_dataset_identifier_code>
+            <xsl:value-of select="gmd:identificationInfo//gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString|gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier/gmd:code/gco:CharacterString"/>
+            </inspire_dls:spatial_dataset_identifier_code>
+        <inspire_dls:spatial_dataset_identifier_namespace>
+            <xsl:value-of select="gmd:identificationInfo//gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:codeSpace/gco:CharacterString|gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier/gmd:codeSpace/gco:CharacterString"/>
+        </inspire_dls:spatial_dataset_identifier_namespace>
         <xsl:apply-templates mode="dataset" select=".">
           <xsl:with-param name="isServiceEntry" select="true()"/>
         </xsl:apply-templates>
@@ -326,8 +331,23 @@
     <xsl:param name="fileIdentifier"/>
     <xsl:param name="identifier"/>
     <xsl:param name="codeSpace"/>
-    <xsl:if test="$fileIdentifier!=''"><xsl:value-of select="concat($baseUrl,'/opensearch/',$lang,'/',$fileIdentifier,'/describe')"/></xsl:if>
-    <xsl:if test="$identifier!=''"><xsl:value-of select="concat($baseUrl,'/opensearch/',$lang,'/describe?spatial_dataset_identifier_code=',$identifier,'&amp;spatial_dataset_identifier_namespace=',$codeSpace)"/></xsl:if>
+    <xsl:choose>
+      <xsl:when test="$isLocal">
+        <xsl:if test="$fileIdentifier!=''">
+          <xsl:value-of
+            select="concat($baseUrl,'/opensearch/',$lang,'/',$fileIdentifier,'/describe')" />
+        </xsl:if>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:if test="$fileIdentifier!=''">
+          <xsl:value-of
+            select="concat($baseUrl, '/', $lang, '/atom.service/',$fileIdentifier)" />
+        </xsl:if>      
+      </xsl:otherwise>
+    </xsl:choose>
+    <xsl:if test="$identifier != '' and $codeSpace != ''">
+        <xsl:value-of select="concat($baseUrl,'/opensearch/',$lang,'/describe?spatial_dataset_identifier_code=',$identifier,'&amp;spatial_dataset_identifier_namespace=',$codeSpace)"/>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template mode="get-translation" match="*|@*">

@@ -22,33 +22,35 @@
 //==============================================================================
 package org.fao.geonet.inspireatom.util;
 
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import jeeves.constants.Jeeves;
 import jeeves.server.ServiceConfig;
 import jeeves.server.context.ServiceContext;
+
+import org.apache.commons.lang.StringUtils;
 import org.fao.geonet.GeonetContext;
 import org.fao.geonet.constants.Geonet;
 import org.fao.geonet.domain.Metadata;
 import org.fao.geonet.exceptions.MetadataNotFoundEx;
+import org.fao.geonet.kernel.DataManager;
 import org.fao.geonet.kernel.search.LuceneSearcher;
 import org.fao.geonet.kernel.search.MetaSearcher;
 import org.fao.geonet.kernel.search.SearchManager;
 import org.fao.geonet.kernel.search.SearcherType;
-import org.fao.geonet.services.util.z3950.Repositories;
+import org.fao.geonet.kernel.setting.SettingManager;
+import org.fao.geonet.lib.Lib;
 import org.fao.geonet.utils.GeonetHttpRequestFactory;
 import org.fao.geonet.utils.Xml;
 import org.fao.geonet.utils.XmlRequest;
-import org.apache.commons.lang.StringUtils;
-
-import org.fao.geonet.kernel.DataManager;
-import org.fao.geonet.kernel.setting.SettingManager;
-import org.fao.geonet.lib.Lib;
 import org.jdom.Element;
 import org.jdom.Namespace;
 import org.jdom.output.XMLOutputter;
-
-import java.net.URL;
-import java.nio.file.Files;
-import java.util.*;
 
 /**
  * Utility class for INSPIRE Atom.
@@ -339,13 +341,19 @@ public class InspireAtomUtil {
         return root;
     }
 
+    public static String convertIso19119ToAtomFeed(final String schema, final Element md, final DataManager dataManager) throws Exception {
+        return InspireAtomUtil.convertIso19119ToAtomFeed(schema, md, dataManager, false);
+    }
+    
     public static String convertIso19119ToAtomFeed(final String schema,
                                             final Element md,
-                                            final DataManager dataManager)
-            throws Exception {
+                                            final DataManager dataManager,
+                                            final boolean isLocal) throws Exception {
 
         java.nio.file.Path styleSheet = dataManager.getSchemaDir(schema).
                 resolve("convert/ATOM/").resolve(ISO1919_TO_ATOM_FEED);
+        Map<String,Object> params = new HashMap<String,Object>();
+        params.put("isLocal", isLocal);
 
         Element atomFeed = Xml.transform(md, styleSheet);
         md.detach();
