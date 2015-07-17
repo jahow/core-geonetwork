@@ -35,6 +35,7 @@ import org.fao.geonet.constants.Geonet;
 import org.fao.geonet.csw.common.util.Xml;
 import org.fao.geonet.domain.InspireAtomFeed;
 import org.fao.geonet.domain.ReservedOperation;
+import org.fao.geonet.exceptions.BadParameterEx;
 import org.fao.geonet.exceptions.MetadataNotFoundEx;
 import org.fao.geonet.inspireatom.InspireAtomService;
 import org.fao.geonet.inspireatom.InspireAtomType;
@@ -81,7 +82,7 @@ public class AtomSearch implements Service
 
         if (!inspireEnable) {
             Log.info(Geonet.ATOM, "Inspire is disabled");
-            throw new Exception("Inspire is disabled");
+            throw new BadParameterEx("system/inspire/enable. Please activate INSPIRE before trying to use the service.", inspireEnable);
         }
 
         String fileIdentifier = params.getChildText("fileIdentifier");
@@ -134,8 +135,10 @@ public class AtomSearch implements Service
                 String id = ((Element) results.getChildren().get(i)).getChild("info", Edit.NAMESPACE).getChildText("id");
 
                 InspireAtomFeed feed =  service.findByMetadataId(Integer.parseInt(id));
-                Element feedEl = Xml.loadString(feed.getAtom(), false);
-                feeds.addContent((Content) feedEl.clone());
+                if (feed != null) {
+                    Element feedEl = Xml.loadString(feed.getAtom(), false);
+                    feeds.addContent((Content) feedEl.clone());
+                }
             }
 
             return feeds;

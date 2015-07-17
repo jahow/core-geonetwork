@@ -1,47 +1,37 @@
 package org.fao.geonet.services.inspireatom;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import java.util.Map;
+
+import javassist.NotFoundException;
+
+import javax.servlet.http.HttpServletRequest;
+
 import jeeves.server.context.ServiceContext;
 import jeeves.server.dispatchers.ServiceManager;
+
 import org.apache.commons.lang.StringUtils;
 import org.fao.geonet.ApplicationContextHolder;
-import org.fao.geonet.Constants;
 import org.fao.geonet.Logger;
 import org.fao.geonet.constants.Geonet;
 import org.fao.geonet.domain.Metadata;
+import org.fao.geonet.exceptions.BadParameterEx;
 import org.fao.geonet.exceptions.MetadataNotFoundEx;
 import org.fao.geonet.inspireatom.util.InspireAtomUtil;
 import org.fao.geonet.kernel.DataManager;
-import org.fao.geonet.kernel.SchemaManager;
 import org.fao.geonet.kernel.search.SearchManager;
-import org.fao.geonet.kernel.search.facet.ItemConfig;
-import org.fao.geonet.kernel.search.facet.SummaryType;
-import org.fao.geonet.kernel.search.keyword.XmlParams;
 import org.fao.geonet.kernel.setting.SettingManager;
-import org.fao.geonet.repository.MetadataRepository;
-import org.fao.geonet.services.metadata.format.FormatType;
 import org.fao.geonet.utils.Log;
-import org.fao.geonet.utils.Xml;
 import org.jdom.Element;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.NativeWebRequest;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import com.google.common.collect.Maps;
 
 /**
  * Created by fgravin on 7/15/15.
@@ -91,7 +81,7 @@ public class AtomFeed {
 
         if (!inspireEnable) {
             Log.info(Geonet.ATOM, "Inspire is disabled");
-            throw new Exception("Inspire is disabled");
+            throw new BadParameterEx("system/inspire/enable. Please activate INSPIRE before trying to use the service.", inspireEnable);
         }
 
         Map<String, Object> results = Maps.newLinkedHashMap();
@@ -106,45 +96,17 @@ public class AtomFeed {
         Element md = dm.getMetadata(id);
         String schema = dm.getMetadataSchema(id);
         if (!InspireAtomUtil.isServiceMetadata(dm, schema, md)) {
-            throw new Exception("No service metadata found with uuid:" + uuid);
+            throw new NotFoundException("No service metadata found with uuid:" + uuid);
         }
 
         String baseUrl = sm.getSiteURL(context);
         baseUrl = baseUrl.substring(0, baseUrl.length()-5);
         String lang = context.getLanguage();
         Element inputDoc = InspireAtomUtil.createInputElement(schema, md, dm, baseUrl, lang);
-        String atomFeed = InspireAtomUtil.convertIso19119ToAtomFeed(schema, inputDoc, dm);
+        String atomFeed = InspireAtomUtil.convertIso19119ToAtomFeed(schema, inputDoc, dm, true);
+        System.out.println(atomFeed);
+        
         return writeOutResponse(atomFeed);
-
-
-/*
-        if(uuid != null) {
-            iso19139Metadata = context.getBean(MetadataRepository.class).findOneByUuid(uuid);
-        }
-
-
-
-        try {
-            logger.info("get ATOM feed " + uuid);
-            String atomProtocol = sm.getValue("system/inspire/atomProtocol");
-
-            // Retrieve the SERVICE metadata referencing atom feed documents
-            Map<String, String> serviceMetadataWithAtomFeeds =
-                    InspireAtomUtil.retrieveServiceMetadataWithAtomFeeds(dataMan, iso19139Metadata, atomProtocol);
-
-            results.put("success", "true");
-            results.put("uuids", new ArrayList(serviceMetadataWithAtomFeeds.keySet()));
-
-        }
-        catch (Exception x) {
-            logger.error("ATOM feed get error: " + x.getMessage());
-            results.put("success", "false");
-            results.put("msg", x.getMessage());
-            x.printStackTrace();
-        }
-
-        return results;
-*/
     }
 
     private ServiceContext createServiceContext(String lang, HttpServletRequest request) {
