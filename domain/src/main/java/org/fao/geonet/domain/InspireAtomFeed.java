@@ -23,14 +23,26 @@
 package org.fao.geonet.domain;
 
 
-import org.hibernate.annotations.Type;
-import org.jdom.Element;
-import org.jdom.Namespace;
-
-import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.Type;
+import org.jdom.Element;
+import org.jdom.Namespace;
 
 /**
  * INSPIRE Atom feed model class.
@@ -231,8 +243,10 @@ public class InspireAtomFeed extends GeonetEntity implements Serializable {
                     InspireAtomFeedEntry inspireAtomFeedEntry = new InspireAtomFeedEntry();
 
                     inspireAtomFeedEntry.setTitle(entry.getChildText("title", ns));
-                    inspireAtomFeedEntry.setCrs( entry.getChild("category", ns).getAttributeValue("term"));
-
+                    Element catEl =  entry.getChild("category", ns);
+                    if (catEl != null) {
+                        inspireAtomFeedEntry.setCrs(catEl.getAttributeValue("term"));
+                    }
                     inspireAtomFeedEntry.setType(linkEl.getAttributeValue("type"));
                     inspireAtomFeedEntry.setLang(linkEl.getAttributeValue("hreflang"));
                     inspireAtomFeedEntry.setUrl(linkEl.getAttributeValue("href"));
