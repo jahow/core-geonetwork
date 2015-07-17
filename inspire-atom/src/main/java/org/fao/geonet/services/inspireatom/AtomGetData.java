@@ -22,27 +22,29 @@
 //==============================================================================
 package org.fao.geonet.services.inspireatom;
 
+import java.nio.file.Path;
+
 import jeeves.interfaces.Service;
 import jeeves.server.ServiceConfig;
 import jeeves.server.context.ServiceContext;
+
 import org.apache.commons.lang.StringUtils;
 import org.fao.geonet.GeonetContext;
 import org.fao.geonet.Util;
 import org.fao.geonet.constants.Geonet;
+import org.fao.geonet.domain.InspireAtomFeed;
+import org.fao.geonet.domain.InspireAtomFeedEntry;
 import org.fao.geonet.domain.Pair;
 import org.fao.geonet.domain.ReservedOperation;
 import org.fao.geonet.exceptions.MetadataNotFoundEx;
+import org.fao.geonet.exceptions.ResourceNotFoundEx;
 import org.fao.geonet.inspireatom.InspireAtomService;
 import org.fao.geonet.inspireatom.util.InspireAtomUtil;
-import org.fao.geonet.domain.InspireAtomFeed;
-import org.fao.geonet.domain.InspireAtomFeedEntry;
 import org.fao.geonet.kernel.DataManager;
 import org.fao.geonet.kernel.setting.SettingManager;
 import org.fao.geonet.lib.Lib;
 import org.fao.geonet.utils.Log;
 import org.jdom.Element;
-
-import java.nio.file.Path;
 
 /**
  * Service to get a data file related to dataset.
@@ -106,6 +108,9 @@ public class AtomGetData implements Service {
         // Retrieve the dataset resources for specified CRS
         InspireAtomFeed inspireAtomFeed = service.findByMetadataId(Integer.parseInt(id));
 
+        if (inspireAtomFeed == null) {
+            throw new ResourceNotFoundEx("Atom feed for metadata " + id + " not found.");
+        }
         // Check the metadata has an atom document.
         String atomUrl = inspireAtomFeed.getAtomUrl();
         if (StringUtils.isEmpty(atomUrl)) throw new Exception("Metadata has no atom feed");

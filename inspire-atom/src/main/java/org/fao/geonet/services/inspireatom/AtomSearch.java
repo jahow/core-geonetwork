@@ -22,31 +22,33 @@
 //==============================================================================
 package org.fao.geonet.services.inspireatom;
 
-import com.google.common.base.Joiner;
+import java.nio.file.Path;
+import java.util.List;
+
 import jeeves.interfaces.Service;
 import jeeves.server.ServiceConfig;
 import jeeves.server.context.ServiceContext;
-import org.fao.geonet.csw.common.util.Xml;
-import org.fao.geonet.domain.ReservedOperation;
-import org.fao.geonet.domain.InspireAtomFeed;
-import org.fao.geonet.inspireatom.InspireAtomService;
-import org.fao.geonet.inspireatom.util.InspireAtomUtil;
-import org.fao.geonet.utils.Log;
+
 import org.apache.commons.lang.StringUtils;
 import org.fao.geonet.constants.Edit;
 import org.fao.geonet.constants.Geonet;
+import org.fao.geonet.csw.common.util.Xml;
+import org.fao.geonet.domain.InspireAtomFeed;
+import org.fao.geonet.domain.ReservedOperation;
 import org.fao.geonet.exceptions.MetadataNotFoundEx;
+import org.fao.geonet.inspireatom.InspireAtomService;
 import org.fao.geonet.inspireatom.InspireAtomType;
+import org.fao.geonet.inspireatom.util.InspireAtomUtil;
 import org.fao.geonet.kernel.DataManager;
 import org.fao.geonet.kernel.setting.SettingManager;
 import org.fao.geonet.lib.Lib;
 import org.fao.geonet.services.main.Result;
 import org.fao.geonet.services.main.Search;
+import org.fao.geonet.utils.Log;
 import org.jdom.Content;
 import org.jdom.Element;
 
-import java.nio.file.Path;
-import java.util.List;
+import com.google.common.base.Joiner;
 
 /**
  * INSPIRE atom search service.
@@ -99,7 +101,7 @@ public class AtomSearch implements Service
             List<String> datasetIdentifiers = InspireAtomUtil.extractRelatedDatasetsIdentifiers(schema, md, dm);
 
             // Remove fileIdentifier from params
-            params.removeContent(1);
+            params.removeChild("fileIdentifier");
 
             // Add query filter
             String values = Joiner.on(" or ").join(datasetIdentifiers);
