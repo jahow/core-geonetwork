@@ -50,7 +50,6 @@ import org.fao.geonet.utils.Xml;
 import org.fao.geonet.utils.XmlRequest;
 import org.jdom.Element;
 import org.jdom.Namespace;
-import org.jdom.output.XMLOutputter;
 
 /**
  * Utility class for INSPIRE Atom.
@@ -355,10 +354,9 @@ public class InspireAtomUtil {
         Map<String,Object> params = new HashMap<String,Object>();
         params.put("isLocal", isLocal);
 
-        Element atomFeed = Xml.transform(md, styleSheet);
+        Element atomFeed = Xml.transform(md, styleSheet, params);
         md.detach();
-        XMLOutputter outp = new XMLOutputter();
-        return outp.outputString(atomFeed);
+        return Xml.getString(atomFeed);
 
     }
 }
