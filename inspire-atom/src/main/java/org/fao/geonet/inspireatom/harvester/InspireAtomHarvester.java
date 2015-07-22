@@ -23,32 +23,32 @@
 package org.fao.geonet.inspireatom.harvester;
 
 
-import jeeves.server.context.ServiceContext;
-import org.fao.geonet.Logger;
-import org.fao.geonet.domain.Metadata;
-import org.fao.geonet.domain.MetadataType;
-import org.fao.geonet.kernel.search.SearchManager;
-import org.fao.geonet.repository.MetadataRepository;
-import org.fao.geonet.repository.InspireAtomFeedRepository;
-import org.fao.geonet.repository.specification.InspireAtomFeedSpecs;
-import org.fao.geonet.repository.specification.MetadataSpecs;
-import org.fao.geonet.utils.Log;
-import org.apache.commons.lang.StringUtils;
-import org.fao.geonet.GeonetContext;
-import org.fao.geonet.constants.Geonet;
-import org.fao.geonet.utils.Xml;
-import org.fao.geonet.inspireatom.util.InspireAtomUtil;
-import org.fao.geonet.domain.InspireAtomFeed;
-import org.fao.geonet.kernel.DataManager;
-import org.fao.geonet.kernel.setting.SettingManager;
-import org.jdom.Element;
-import org.springframework.data.jpa.domain.Specifications;
-
-import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import jeeves.server.context.ServiceContext;
+
+import org.apache.commons.lang.StringUtils;
+import org.fao.geonet.GeonetContext;
+import org.fao.geonet.Logger;
+import org.fao.geonet.constants.Geonet;
+import org.fao.geonet.domain.InspireAtomFeed;
+import org.fao.geonet.domain.Metadata;
+import org.fao.geonet.domain.MetadataType;
+import org.fao.geonet.inspireatom.util.InspireAtomUtil;
+import org.fao.geonet.kernel.DataManager;
+import org.fao.geonet.kernel.search.SearchManager;
+import org.fao.geonet.kernel.setting.SettingManager;
+import org.fao.geonet.repository.InspireAtomFeedRepository;
+import org.fao.geonet.repository.MetadataRepository;
+import org.fao.geonet.repository.specification.InspireAtomFeedSpecs;
+import org.fao.geonet.repository.specification.MetadataSpecs;
+import org.fao.geonet.utils.Log;
+import org.fao.geonet.utils.Xml;
+import org.jdom.Element;
+import org.springframework.data.jpa.domain.Specifications;
 
 /**
  * Class to harvest the Atom documents referenced in the iso19139 in the catalog.
@@ -220,6 +220,7 @@ public class InspireAtomHarvester {
                 logger.debug("Atom feed Url for service metadata (" + metadataId + "): " + atomUrl);
 
                 String atomFeedDocument = InspireAtomUtil.retrieveRemoteAtomFeedDocument(gc, atomUrl);
+
                 logger.debug("Atom feed Document for service metadata (" + metadataId + "): " + atomFeedDocument);
 
 

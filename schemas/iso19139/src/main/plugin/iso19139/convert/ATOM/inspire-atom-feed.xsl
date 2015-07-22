@@ -379,17 +379,16 @@
   </xsl:template>
 
   <xsl:template name="atom-link-href">
-    <xsl:param name="lang"/>
-    <xsl:param name="baseUrl"/>
-    <xsl:param name="fileIdentifier"/>
-    <xsl:param name="identifier"/>
-    <xsl:param name="codeSpace"/>
+    <xsl:param name="lang" />
+    <xsl:param name="baseUrl" />
+    <xsl:param name="fileIdentifier" />
+    <xsl:param name="identifier" />
+    <xsl:param name="codeSpace" />
     <xsl:choose>
-    <!--  remote ATOM service -->
+      <!-- remote ATOM service -->
       <xsl:when test="not($isLocal)">
         <xsl:if test="$fileIdentifier!=''">
-          <xsl:value-of
-            select="concat($baseUrl,'/opensearch/',$lang,'/',$fileIdentifier,'/describe')" />
+          <xsl:value-of select="concat($baseUrl,'/opensearch/',$lang,'/',$fileIdentifier,'/describe')" />
         </xsl:if>
       </xsl:when>
       <!-- local ATOM service -->
@@ -401,19 +400,36 @@
         </xsl:choose>
       </xsl:otherwise>
     </xsl:choose>
-
-    <!-- TODO: identifier can match both RS_Identifier and MD_Identifier ... (in the PIGMA provided MD). Which one to take then ?
-    For now considering the first ... -->
-    <xsl:message>count(identifier) : <xsl:value-of select="$identifier" /></xsl:message>
     <xsl:if test="$identifier != '' and $codeSpace != ''">
-        <xsl:choose>
-        <xsl:when test="count($identifier) &gt; 1">
-        <xsl:value-of select="concat($baseUrl,'/opensearch/',$lang,'/describe?spatial_dataset_identifier_code=',$identifier[1],'&amp;spatial_dataset_identifier_namespace=',$codeSpace)"/>
+      <xsl:choose>
+        <!-- remote -->
+        <xsl:when test="not($isLocal)">
+          <xsl:choose>
+            <xsl:when test="count($identifier) &gt; 1">
+              <xsl:value-of
+                select="concat($baseUrl,'/opensearch/',$lang,'/describe?spatial_dataset_identifier_code=',$identifier[1],'&amp;spatial_dataset_identifier_namespace=',$codeSpace)" />
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of
+                select="concat($baseUrl,'/opensearch/',$lang,'/describe?spatial_dataset_identifier_code=',$identifier,'&amp;spatial_dataset_identifier_namespace=',$codeSpace)" />
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
+        <!-- local -->
         <xsl:otherwise>
-        <xsl:value-of select="concat($baseUrl,'/opensearch/',$lang,'/describe?spatial_dataset_identifier_code=',$identifier,'&amp;spatial_dataset_identifier_namespace=',$codeSpace)"/>        
+          <!-- TODO: identifier can match both RS_Identifier and MD_Identifier 
+            ... (in the PIGMA provided MD). Which one to take then ? For now, considering 
+            the first ... -->
+          <xsl:choose>
+            <xsl:when test="count($identifier) &gt; 1">
+              <xsl:value-of select="concat($baseUrl, $lang, '/atom.local.describe?spatial_dataset_identifier_code=',$identifier[1],'&amp;spatial_dataset_identifier_namespace=',$codeSpace)" />
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="concat($baseUrl, $lang,'/atom.local.describe?spatial_dataset_identifier_code=',$identifier,'&amp;spatial_dataset_identifier_namespace=',$codeSpace)" />
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:otherwise>
-        </xsl:choose>
+      </xsl:choose>
     </xsl:if>
   </xsl:template>
 

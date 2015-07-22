@@ -341,7 +341,7 @@ public class InspireAtomUtil {
     }
 
     public static String convertIso19119ToAtomFeed(final String schema, final Element md, final DataManager dataManager) throws Exception {
-        return InspireAtomUtil.convertIso19119ToAtomFeed(schema, md, dataManager, false);
+        return convertIso19119ToAtomFeed(schema, md, dataManager, false);
     }
     
     public static String convertIso19119ToAtomFeed(final String schema,
@@ -351,6 +351,7 @@ public class InspireAtomUtil {
 
         java.nio.file.Path styleSheet = dataManager.getSchemaDir(schema).
                 resolve("convert/ATOM/").resolve(ISO1919_TO_ATOM_FEED);
+
         Map<String,Object> params = new HashMap<String,Object>();
         params.put("isLocal", isLocal);
 
