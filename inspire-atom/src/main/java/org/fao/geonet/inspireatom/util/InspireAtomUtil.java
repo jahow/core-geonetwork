@@ -360,4 +360,13 @@ public class InspireAtomUtil {
         return Xml.getString(atomFeed);
 
     }
+    
+
+    public static Element convertDatasetMdToAtom(final String schema, final Element md, final DataManager dataManager,
+            Map<String,Object> params) throws Exception {
+        java.nio.file.Path styleSheet = dataManager.getSchemaDir(schema).resolve("convert/ATOM/")
+                .resolve(ISO1919_TO_ATOM_FEED);
+
+        return Xml.transform(md, styleSheet, params);
+    }
 }

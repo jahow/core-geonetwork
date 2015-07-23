@@ -52,6 +52,13 @@ public class AtomFeed {
         return getAtomFeed(uiLang, null, webRequest);
     }
 
+    /**
+     * Main entry point for local dataset ATOM sub-feeds description.
+     *
+     * @param uiLang
+     * @param webRequest
+     * @return
+     */
     @RequestMapping("/{uiLang}/atom.local.describe")
     @ResponseBody
     public HttpEntity<byte[]> localDescribe(@PathVariable String uiLang, NativeWebRequest webRequest) {

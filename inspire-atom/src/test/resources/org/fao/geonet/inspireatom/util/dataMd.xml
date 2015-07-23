@@ -536,6 +536,26 @@ informations mises à disposition est compatible avec l’usage qu’il en fait.
               </gmd:name>
             </gmd:CI_OnlineResource>
           </gmd:onLine>
+          <gmd:onLine>
+            <gmd:CI_OnlineResource>
+              <gmd:linkage>
+                <gmd:URL>http://localhost:8080/geonetwork/srv/eng/resources.get?uuid=883f1c67-b1f9-47d1-ae1a-3a49d7dba179&amp;fname=Documents-43632.zip&amp;access=public
+                </gmd:URL>
+              </gmd:linkage>
+              <gmd:protocol>
+                <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+              </gmd:protocol>
+              <gmd:applicationProfile>
+                <gco:CharacterString>INSPIRE-Download-Atom</gco:CharacterString>
+              </gmd:applicationProfile>
+              <gmd:name>
+                <gmx:MimeFileType type="application/x-compressed" xmlns:gmx="http://www.isotc211.org/2005/gmx">Documents-43632.zip</gmx:MimeFileType>
+              </gmd:name>
+              <gmd:description>
+                <gco:CharacterString>PLU ville de Bidule</gco:CharacterString>
+              </gmd:description>
+            </gmd:CI_OnlineResource>
+          </gmd:onLine>
         </gmd:MD_DigitalTransferOptions>
       </gmd:transferOptions>
     </gmd:MD_Distribution>
