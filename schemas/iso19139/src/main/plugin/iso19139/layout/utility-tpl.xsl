@@ -69,7 +69,7 @@
             <name><xsl:value-of select="$fileName"/></name>
             <url><xsl:value-of select="gmd:CI_OnlineResource/gmd:linkage/gmd:URL"/></url>
             <title><xsl:value-of select="normalize-space($metadata/gmd:identificationInfo/*/
-              gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString)"/></title>
+              gmd:citation[1]/gmd:CI_Citation/gmd:title/gco:CharacterString)"/></title>
             <abstract><xsl:value-of select="normalize-space($metadata/
               gmd:identificationInfo/*/gmd:abstract)"/></abstract>
             <protocol><xsl:value-of select="gmd:CI_OnlineResource/gmd:protocol/gco:CharacterString"/></protocol>
