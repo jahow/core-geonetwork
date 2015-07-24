@@ -86,10 +86,9 @@ public class InspireAtomUtilTest {
     @Test
     public void testLocalTransform() throws Exception {
         String result = testGlobalTransform(true);
-
         // Should contain a reference to local.decribe
         assertTrue("transformed result does not contain URL to atom.local.describe",
-                result.contains("<atom:id>/atom.local.describe?spatial_dataset_identifier_code=" +
+                result.contains("<atom:id>//atom.local.describe?spatial_dataset_identifier_code=" +
                         "f7d22d90-7651-11e0-a1f0-0800200c9a63&amp;spatial_dataset_identifier_namespace=" +
                         "http://www.cultureelerfgoed.nl</atom:id>"));
     }
@@ -119,9 +118,10 @@ public class InspireAtomUtilTest {
         Element ret = InspireAtomUtil.convertDatasetMdToAtom("iso19139", doc.getRootElement(), getDataManager(), params);
         
         String atomStr = Xml.getString(ret);
+
         // Should contain a link to the atom.local.describe service
         assertTrue("Unable to find the URL to the ATOM local dataset service",
-                atomStr.contains("<atom:id>/atom.local.describe?spatial_dataset_identifier_code=f7d22d90-7651-11e0-a1f0-0800200c9a63&amp;"+
+                atomStr.contains("<atom:id>//atom.local.describe?spatial_dataset_identifier_code=f7d22d90-7651-11e0-a1f0-0800200c9a63&amp;"+
                           "spatial_dataset_identifier_namespace=http://www.cultureelerfgoed.nl</atom:id>"));
         
         // Should contain a link to the atom.service

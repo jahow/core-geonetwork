@@ -360,10 +360,35 @@ public class InspireAtomUtil {
         return Xml.getString(atomFeed);
 
     }
-    
+
+    /**
+     * Converts a dataset MD into an INSPIRE atom feed.
+     *
+     * @param schema the target schema (mainly iso19139)
+     * @param md The document on which the XSL should be applied, the following format should be followed:
+     *
+     * <root>
+     *   <dataset>
+     *     <gmd:MD_Metadata />
+     *   </dataset>
+     *   <serviceIdentifier>[Service Metadata UUID]</serviceIdentifier>
+     *   ...
+     * </root>
+     *
+     * @param dataManager
+     * @param params extra parameters to pass to the XSL transformation, see inspire-atom-feed.xsl for the details:
+     *     <xsl:param name="isLocal" select="true()" />
+     *     <xsl:param name="serviceFeedTitle" select="string('The parent service feed')" />
+     *
+     * @return the ATOM feed as a JDOM element.
+     * @throws Exception
+     *
+     * See InspireAtomUtilTest.testLocalDatasetTransform() for an example of calling this method.
+     */
 
     public static Element convertDatasetMdToAtom(final String schema, final Element md, final DataManager dataManager,
             Map<String,Object> params) throws Exception {
+
         java.nio.file.Path styleSheet = dataManager.getSchemaDir(schema).resolve("convert/ATOM/")
                 .resolve(ISO1919_TO_ATOM_FEED);
 

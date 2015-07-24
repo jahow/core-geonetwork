@@ -22,7 +22,6 @@
   <xsl:param name="isLocal" select="false()" />
   
   <!-- parameters used in case of dataset feed generation -->
-  <xsl:param name="serviceMdUuid" select="string()" />
   <xsl:param name="serviceFeedTitle" select="string('The parent service feed')" />
 
 
@@ -500,10 +499,10 @@
             the first ... -->
           <xsl:choose>
             <xsl:when test="count($identifier) &gt; 1">
-              <xsl:value-of select="concat($baseUrl, $lang, '/atom.local.describe?spatial_dataset_identifier_code=',$identifier[1],'&amp;spatial_dataset_identifier_namespace=',$codeSpace)" />
+              <xsl:value-of select="concat($baseUrl,'/', $lang, '/atom.local.describe?spatial_dataset_identifier_code=',$identifier[1],'&amp;spatial_dataset_identifier_namespace=',$codeSpace)" />
             </xsl:when>
             <xsl:otherwise>
-              <xsl:value-of select="concat($baseUrl, $lang,'/atom.local.describe?spatial_dataset_identifier_code=',$identifier,'&amp;spatial_dataset_identifier_namespace=',$codeSpace)" />
+              <xsl:value-of select="concat($baseUrl,'/', $lang,'/atom.local.describe?spatial_dataset_identifier_code=',$identifier,'&amp;spatial_dataset_identifier_namespace=',$codeSpace)" />
             </xsl:otherwise>
           </xsl:choose>
         </xsl:otherwise>
