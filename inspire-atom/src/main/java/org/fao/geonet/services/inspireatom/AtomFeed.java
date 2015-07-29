@@ -54,6 +54,15 @@ import org.springframework.web.context.request.NativeWebRequest;
 @Controller
 public class AtomFeed {
 
+    /**
+     * Main entry point for local service ATOM feed description
+     *
+     * @param uiLang the language parameter
+     * @param uuid identifier of the metadata of service
+     * @param webRequest
+     * @return
+     * @throws Exception
+     */
     @RequestMapping(value = "/{uiLang}/atom.service/{uuid}")
     @ResponseBody
     public HttpEntity<byte[]> localServiceDescribe(
@@ -68,11 +77,13 @@ public class AtomFeed {
     }
 
     /**
-     * Main entry point for local dataset ATOM sub-feeds description.
+     * Main entry point for local dataset ATOM feed description.
      *
      * @param uiLang the language parameter
-     * @param webRequest
-     * @return the HTTP response corresponding to the expected ATOM feed
+     * @param spIdentifier the spatial dataset identifier
+     * @param spNamespace the spatial dataset namespace
+     * @param webRequest the request object
+     * @return
      * @throws Exception
      */
     @RequestMapping(value = "/{uiLang}/atom.dataset")
@@ -160,6 +171,8 @@ public class AtomFeed {
 
     private Element getServiceFeed(ServiceContext context, final String uuid) throws Exception {
 
+        Log.debug(Geonet.ATOM, "Processing service feed  ( uuid : " + uuid + " )");
+
         SettingManager sm = context.getBean(SettingManager.class);
         DataManager dm = context.getBean(DataManager.class);
 
@@ -176,10 +189,12 @@ public class AtomFeed {
 
         // Check if it is a service metadata
 
-        // TODO: NO ACLs checks are currently done, any user can call this service
-        // to get potential restricted infos.
-        //
-        // One has to call Lib.resource.checkPrivilege(context, id, ReservedOperation.view);
+        // check user's rights
+        try {
+            Lib.resource.checkPrivilege(context, id, ReservedOperation.view);
+        } catch (Exception e) {
+            throw new UnAuthorizedException("Acces denied to metadata " + id, e);
+        }
 
         Map<String, Object> params = getDefaultXSLParams(sm, context);
 
