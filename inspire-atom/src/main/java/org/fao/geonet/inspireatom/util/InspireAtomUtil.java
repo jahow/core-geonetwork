@@ -23,6 +23,7 @@
 package org.fao.geonet.inspireatom.util;
 
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -48,6 +49,7 @@ import org.fao.geonet.lib.Lib;
 import org.fao.geonet.utils.GeonetHttpRequestFactory;
 import org.fao.geonet.utils.Xml;
 import org.fao.geonet.utils.XmlRequest;
+import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.Namespace;
 
@@ -68,7 +70,7 @@ public class InspireAtomUtil {
     private static final String EXTRACT_ATOM_FEED = "extract-atom-feed.xsl";
 
     /** Xslt process to get the atom feed link from the metadata. **/
-    private static final String ISO1919_TO_ATOM_FEED = "inspire-atom-feed.xsl";
+    private static final String TANSFORM_MD_TO_ATOM_FEED = "inspire-atom-feed.xsl";
 
     /**
      * Issue an http request to retrieve the remote Atom feed document.
@@ -311,7 +313,7 @@ public class InspireAtomUtil {
         return uuid;
     }
 
-    public static Element createInputElement(final String schema,
+    public static Element prepareServiceFeedEltBeforeTransform(final String schema,
                                              final Element md,
                                              final DataManager dataManager,
                                              final String baseUrl,
@@ -340,17 +342,30 @@ public class InspireAtomUtil {
         return root;
     }
 
-    public static String convertIso19119ToAtomFeed(final String schema, final Element md, final DataManager dataManager) throws Exception {
-        return convertIso19119ToAtomFeed(schema, md, dataManager, false);
+    public static Element prepareDatasetFeedEltBeforeTransform(
+                       final Element md,
+                       final String serviceMdUuid,
+                       final String baseUrl,
+                       final String lang)
+            throws Exception {
+
+        Document doc = new Document(new Element("root"));
+        doc.getRootElement().addContent(new Element("dataset").addContent(md));
+        doc.getRootElement().addContent(new Element("serviceIdentifier").setText(serviceMdUuid));
+
+        doc.getRootElement().addContent(new Element("baseurl").setText(baseUrl));
+        doc.getRootElement().addContent(new Element("lang").setText(lang));
+        return doc.getRootElement();
     }
-    
+
+
     public static String convertIso19119ToAtomFeed(final String schema,
                                             final Element md,
                                             final DataManager dataManager,
                                             final boolean isLocal) throws Exception {
 
         java.nio.file.Path styleSheet = dataManager.getSchemaDir(schema).
-                resolve("convert/ATOM/").resolve(ISO1919_TO_ATOM_FEED);
+                resolve("convert/ATOM/").resolve(TANSFORM_MD_TO_ATOM_FEED);
 
         Map<String,Object> params = new HashMap<String,Object>();
         params.put("isLocal", isLocal);
@@ -385,13 +400,15 @@ public class InspireAtomUtil {
      *
      * See InspireAtomUtilTest.testLocalDatasetTransform() for an example of calling this method.
      */
-
     public static Element convertDatasetMdToAtom(final String schema, final Element md, final DataManager dataManager,
             Map<String,Object> params) throws Exception {
 
-        java.nio.file.Path styleSheet = dataManager.getSchemaDir(schema).resolve("convert/ATOM/")
-                .resolve(ISO1919_TO_ATOM_FEED);
-
+        Path styleSheet = getAtomFeedXSLStylesheet(schema, dataManager);
         return Xml.transform(md, styleSheet, params);
+    }
+
+    private static Path getAtomFeedXSLStylesheet(final String schema, final DataManager dataManager) {
+        return dataManager.getSchemaDir(schema).resolve("convert/ATOM/")
+                .resolve(TANSFORM_MD_TO_ATOM_FEED);
     }
 }

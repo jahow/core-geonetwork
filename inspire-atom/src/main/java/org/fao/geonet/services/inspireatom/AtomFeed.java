@@ -54,21 +54,15 @@ public class AtomFeed {
 
     @RequestMapping(value = "/{uiLang}/atom.service/{uuid}")
     @ResponseBody
-    public HttpEntity<byte[]> deprecatedAPI(
+    public HttpEntity<byte[]> localServiceDescribe(
             @PathVariable String uiLang,
             @PathVariable String uuid,
             NativeWebRequest webRequest) throws Exception {
 
-        return getAtomFeed(uiLang, uuid, webRequest);
-    }
+        ServiceContext context = createServiceContext(uiLang, webRequest.getNativeRequest(HttpServletRequest.class));
+        Element feed = getServiceFeed(context, uuid);
 
-    @RequestMapping(value = "/{uiLang}/atom.service")
-    @ResponseBody
-    public HttpEntity<byte[]> deprecatedAPI(
-            @PathVariable String uiLang,
-            NativeWebRequest webRequest) throws Exception {
-
-        return getAtomFeed(uiLang, null, webRequest);
+        return writeOutResponse(Xml.getString(feed));
     }
 
     /**
@@ -79,13 +73,20 @@ public class AtomFeed {
      * @return the HTTP response corresponding to the expected ATOM feed
      * @throws Exception
      */
-    @RequestMapping("/{uiLang}/atom.local.describe")
+    @RequestMapping(value = "/{uiLang}/atom.dataset")
     @ResponseBody
-    public HttpEntity<byte[]> localDescribe(@PathVariable String uiLang,
+    public HttpEntity<byte[]> localDatasetDescribe(
+            @PathVariable String uiLang,
             @RequestParam("spatial_dataset_identifier_code") String spIdentifier,
             @RequestParam("spatial_dataset_identifier_namespace") String spNamespace,
             NativeWebRequest webRequest) throws Exception {
+
         ServiceContext context = createServiceContext(uiLang, webRequest.getNativeRequest(HttpServletRequest.class));
+        Element feed = getDatasetFeed(context, spIdentifier);
+        return writeOutResponse(Xml.getString(feed));
+    }
+
+    private Element getDatasetFeed(ServiceContext context, final String spIdentifier) throws Exception {
 
         MetadataRepository repo = context.getBean(MetadataRepository.class);
         Metadata datasetMd = repo.findOneByUuid(spIdentifier);
@@ -123,32 +124,22 @@ public class AtomFeed {
             }
         }
 
-        Document doc = new Document(new Element("root"));
-        doc.getRootElement().addContent(new Element("dataset").addContent(datasetMd.getXmlData(false)).detach());
-        doc.getRootElement().addContent(new Element("serviceIdentifier").setText(serviceMdUuid));
-
-        // TODO: need to add baseurl, lang
-
         Map<String, Object> params = new HashMap<String,Object>();
         params.put("isLocal", true);
         // TODO: This could be included as a /root/serviceMd/.../ instead
         params.put("serviceFeedTitle", "PIGMA service Metadata");
+
         DataManager dm = context.getBean(DataManager.class);
-        Element transformed = InspireAtomUtil.convertDatasetMdToAtom("iso19139", doc.getRootElement(), dm, params);
-        return writeOutResponse(Xml.getString(transformed));
+        SettingManager sm = context.getBean(SettingManager.class);
+        Element inputDoc = InspireAtomUtil.prepareDatasetFeedEltBeforeTransform(datasetMd.getXmlData(false),
+                serviceMdUuid, getBaseURL(sm, context), context.getLanguage());
+
+        Element transformed = InspireAtomUtil.convertDatasetMdToAtom("iso19139", inputDoc, dm, params);
+        return transformed;
     }
 
-    /**
-     *
-     * @param uiLang main geonetwork language
-     * @param uuid (optional) if set, get the service identified by the uuid
-     * @param webRequest
-     *
-     * @return Map that will be converted in JSON for response
-     */
-    private HttpEntity<byte[]> getAtomFeed(String uiLang, String uuid, NativeWebRequest webRequest) throws Exception {
-        ServiceContext context = createServiceContext(uiLang,
-                webRequest.getNativeRequest(HttpServletRequest.class));
+
+    private Element getServiceFeed(ServiceContext context, final String uuid) throws Exception {
 
         SettingManager sm = context.getBean(SettingManager.class);
         DataManager dm = context.getBean(DataManager.class);
@@ -177,14 +168,17 @@ public class AtomFeed {
             throw new NotFoundException("No service metadata found with uuid:" + uuid);
         }
 
-        String baseUrl = sm.getSiteURL(context);
-        baseUrl = baseUrl.substring(0, baseUrl.length()-5);
-        String lang = context.getLanguage();
-        Element inputDoc = InspireAtomUtil.createInputElement(schema, md, dm, baseUrl, lang);
+        Element inputDoc = InspireAtomUtil.prepareServiceFeedEltBeforeTransform(schema, md, dm,
+                getBaseURL(sm, context), context.getLanguage());
 
-        String atomFeed = InspireAtomUtil.convertIso19119ToAtomFeed(schema, inputDoc, dm, true);
-        
-        return writeOutResponse(atomFeed);
+        Element transformed = InspireAtomUtil.convertDatasetMdToAtom("iso19139", inputDoc, dm, null);
+        return transformed;
+    }
+
+
+    private String getBaseURL(SettingManager settingManager, ServiceContext context) {
+        String baseUrl = settingManager.getSiteURL(context);
+        return baseUrl.substring(0, baseUrl.length()-5);
     }
 
     private ServiceContext createServiceContext(String lang, HttpServletRequest request) {

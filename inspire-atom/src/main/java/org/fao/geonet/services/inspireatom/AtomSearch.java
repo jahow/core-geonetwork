@@ -144,6 +144,5 @@ public class AtomSearch implements Service
             return feeds;
         }
 
-
     }
 }
