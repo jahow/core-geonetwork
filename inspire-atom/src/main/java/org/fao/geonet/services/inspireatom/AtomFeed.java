@@ -90,12 +90,34 @@ public class AtomFeed {
 
     private Element getDatasetFeed(ServiceContext context, final String spIdentifier) throws Exception {
 
-        MetadataRepository repo = context.getBean(MetadataRepository.class);
-        Metadata datasetMd = repo.findOneByUuid(spIdentifier);
+        ServiceConfig config = new ServiceConfig();
+        SearchManager searchMan = context.getBean(SearchManager.class);
 
-        if (datasetMd == null) {
-            throw new ObjectNotFoundEx("metadata " + spIdentifier + " not found");
+        // Search for the dataset identified by spIdentifier
+        Metadata datasetMd = null;
+        Document dsLuceneSearchParams = createDefaultLuceneSearcherParams();
+        dsLuceneSearchParams.getRootElement().addContent(new Element("identifier").setText(spIdentifier));
+        dsLuceneSearchParams.getRootElement().addContent(new Element("type").setText("dataset"));
+
+        try (MetaSearcher searcher = searchMan.newSearcher(SearcherType.LUCENE, Geonet.File.SEARCH_LUCENE)) {
+            searcher.search(context, dsLuceneSearchParams.getRootElement(), config);
+            Element searchResult = searcher.present(context, dsLuceneSearchParams.getRootElement(), config);
+
+            XPath xp = XPath.newInstance("//response/metadata/geonet:info/uuid/text()");
+            xp.addNamespace("geonet", "http://www.fao.org/geonetwork");
+
+            Text uuidTxt = (Text) xp.selectSingleNode(new Document(searchResult));
+            String datasetMdUuid = uuidTxt.getText();
+
+            MetadataRepository repo = context.getBean(MetadataRepository.class);
+            datasetMd = repo.findOneByUuid(datasetMdUuid);
+
+        } finally {
+            if (datasetMd == null) {
+                throw new ObjectNotFoundEx("metadata " + spIdentifier + " not found");
+            }
         }
+
         // check user's rights
         try {
             Lib.resource.checkPrivilege(context, ""+datasetMd.getId(), ReservedOperation.view);
@@ -103,14 +125,11 @@ public class AtomFeed {
             // This does not return a 403 as expected Oo
             throw new UnAuthorizedException("Acces denied to metadata " +datasetMd.getUuid(), e);
         }
+
         String serviceMdUuid = null;
-        Document luceneParamSearch = new Document(new Element("request").
-                addContent(new Element("operatesOn").setText(datasetMd.getUuid())).
-                addContent(new Element("from").setText("1")).
-                addContent(new Element("to").setText("1000")).
-                addContent(new Element("fast").setText("index")));
-        ServiceConfig config = new ServiceConfig();
-        SearchManager searchMan = context.getBean(SearchManager.class);
+        Document luceneParamSearch = createDefaultLuceneSearcherParams();
+        luceneParamSearch.getRootElement().addContent(new Element("operatesOn").setText(datasetMd.getUuid()));
+
         try (MetaSearcher searcher = searchMan.newSearcher(SearcherType.LUCENE, Geonet.File.SEARCH_LUCENE)) {
             searcher.search(context, luceneParamSearch.getRootElement(), config);
             Element searchResult = searcher.present(context, luceneParamSearch.getRootElement(), config);
@@ -200,6 +219,15 @@ public class AtomFeed {
     private ServiceContext createServiceContext(String lang, HttpServletRequest request) {
         final ServiceManager serviceManager = ApplicationContextHolder.get().getBean(ServiceManager.class);
         return serviceManager.createServiceContext("atom.service", lang, request);
+    }
+
+    private Document createDefaultLuceneSearcherParams() {
+        Document luceneParamSearch = new Document(new Element("request").
+                addContent(new Element("from").setText("1")).
+                addContent(new Element("to").setText("1000")).
+                addContent(new Element("fast").setText("index")));
+
+        return luceneParamSearch;
     }
 
     private HttpEntity<byte[]> writeOutResponse(String content) throws Exception {
