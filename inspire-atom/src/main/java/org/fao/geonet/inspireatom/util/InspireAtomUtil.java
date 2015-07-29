@@ -315,9 +315,7 @@ public class InspireAtomUtil {
 
     public static Element prepareServiceFeedEltBeforeTransform(final String schema,
                                              final Element md,
-                                             final DataManager dataManager,
-                                             final String baseUrl,
-                                             final String lang)
+                                             final DataManager dataManager)
             throws Exception {
 
         List<String> datasetsUuids = extractRelatedDatasetsIdentifiers(schema, md, dataManager);
@@ -325,8 +323,6 @@ public class InspireAtomUtil {
         Element serviceElt = new Element("service");
         Element datasetElt = new Element("datasets");
 
-        root.addContent(new Element("baseurl").setText(baseUrl));
-        root.addContent(new Element("lang").setText(lang));
         root.addContent(serviceElt);
         md.addContent(datasetElt);
 
@@ -344,17 +340,13 @@ public class InspireAtomUtil {
 
     public static Element prepareDatasetFeedEltBeforeTransform(
                        final Element md,
-                       final String serviceMdUuid,
-                       final String baseUrl,
-                       final String lang)
+                       final String serviceMdUuid)
             throws Exception {
 
         Document doc = new Document(new Element("root"));
         doc.getRootElement().addContent(new Element("dataset").addContent(md));
         doc.getRootElement().addContent(new Element("serviceIdentifier").setText(serviceMdUuid));
 
-        doc.getRootElement().addContent(new Element("baseurl").setText(baseUrl));
-        doc.getRootElement().addContent(new Element("lang").setText(lang));
         return doc.getRootElement();
     }
 

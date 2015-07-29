@@ -26,7 +26,7 @@ public class InspireAtomUtilTest {
     
     private DataManager getDataManager() {
         DataManager dm = Mockito.mock(DataManager.class);
-        Mockito.when(dm.getSchemaDir(Mockito.anyString())).thenReturn(Paths.get("../schemas/iso19139/src/main/plugin/iso19139/"));
+        Mockito.when(dm.getSchemaDir(Mockito.anyString())).thenReturn(Paths.get("schemas/iso19139/src/main/plugin/iso19139/"));
         return dm;
     }
 

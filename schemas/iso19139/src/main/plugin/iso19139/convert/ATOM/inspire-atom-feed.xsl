@@ -16,11 +16,12 @@
 
   <xsl:variable name="protocol">WWW:DOWNLOAD-1.0-http--download</xsl:variable>
   <xsl:variable name="applicationProfile">INSPIRE-Download-Atom</xsl:variable>
-  <xsl:variable name="guiLang" select="/root/lang"/>
-  <xsl:variable name="baseUrl" select="/root/baseurl"/>
 
   <xsl:param name="isLocal" select="false()" />
-  
+  <xsl:param name="guiLang" select="string('eng')" />
+  <xsl:param name="baseUrl" />
+  <xsl:param name="nodeName" select="string('srv')" />
+
   <!-- parameters used in case of dataset feed generation -->
   <xsl:param name="serviceFeedTitle" select="string('The parent service feed')" />
 
@@ -415,7 +416,7 @@
     <xsl:param name="baseUrl"/>
     <xsl:param name="fileIdentifier"/>
     <atom:link rel="describedby" type="application/xml">
-      <xsl:attribute name="href" select="concat($baseUrl,'/srv/',$lang,'/csw?service=CSW&amp;version=2.0.2&amp;request=GetRecordById&amp;outputschema=http://www.isotc211.org/2005/gmd&amp;elementSetName=full&amp;id=',$fileIdentifier)"/>
+      <xsl:attribute name="href" select="concat($baseUrl,'/', $nodeName, '/',$lang,'/csw?service=CSW&amp;version=2.0.2&amp;request=GetRecordById&amp;outputschema=http://www.isotc211.org/2005/gmd&amp;elementSetName=full&amp;id=',$fileIdentifier)"/>
     </atom:link>
   </xsl:template>
 
@@ -472,7 +473,7 @@
       <xsl:otherwise>
         <xsl:choose>
           <xsl:when test="$fileIdentifier != ''">
-            <xsl:value-of select="concat($baseUrl, '/', $lang, '/atom.service/',$fileIdentifier)" />
+            <xsl:value-of select="concat($baseUrl, '/', $nodeName, '/', $lang, '/atom.service/',$fileIdentifier)" />
           </xsl:when>
         </xsl:choose>
       </xsl:otherwise>
@@ -499,10 +500,10 @@
             the first ... -->
           <xsl:choose>
             <xsl:when test="count($identifier) &gt; 1">
-              <xsl:value-of select="concat($baseUrl,'/', $lang, '/atom.local.describe?spatial_dataset_identifier_code=',$identifier[1],'&amp;spatial_dataset_identifier_namespace=',$codeSpace)" />
+              <xsl:value-of select="concat($baseUrl,'/', $nodeName, '/', $lang, '/atom.dataset?spatial_dataset_identifier_code=',$identifier[1],'&amp;spatial_dataset_identifier_namespace=',$codeSpace)" />
             </xsl:when>
             <xsl:otherwise>
-              <xsl:value-of select="concat($baseUrl,'/', $lang,'/atom.local.describe?spatial_dataset_identifier_code=',$identifier,'&amp;spatial_dataset_identifier_namespace=',$codeSpace)" />
+              <xsl:value-of select="concat($baseUrl,'/', $nodeName, '/', $lang,'/atom.dataset?spatial_dataset_identifier_code=',$identifier,'&amp;spatial_dataset_identifier_namespace=',$codeSpace)" />
             </xsl:otherwise>
           </xsl:choose>
         </xsl:otherwise>

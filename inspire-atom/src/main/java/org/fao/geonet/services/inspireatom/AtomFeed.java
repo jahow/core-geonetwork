@@ -11,8 +11,10 @@ import jeeves.server.ServiceConfig;
 import jeeves.server.context.ServiceContext;
 import jeeves.server.dispatchers.ServiceManager;
 
+import jeeves.server.sources.http.ServletPathFinder;
 import org.apache.commons.lang.StringUtils;
 import org.fao.geonet.ApplicationContextHolder;
+import org.fao.geonet.NodeInfo;
 import org.fao.geonet.constants.Geonet;
 import org.fao.geonet.domain.Metadata;
 import org.fao.geonet.domain.ReservedOperation;
@@ -124,15 +126,13 @@ public class AtomFeed {
             }
         }
 
-        Map<String, Object> params = new HashMap<String,Object>();
-        params.put("isLocal", true);
-        // TODO: This could be included as a /root/serviceMd/.../ instead
-        params.put("serviceFeedTitle", "PIGMA service Metadata");
-
         DataManager dm = context.getBean(DataManager.class);
         SettingManager sm = context.getBean(SettingManager.class);
-        Element inputDoc = InspireAtomUtil.prepareDatasetFeedEltBeforeTransform(datasetMd.getXmlData(false),
-                serviceMdUuid, getBaseURL(sm, context), context.getLanguage());
+
+        Map<String, Object> params = getDefaultXSLParams(sm, context);
+        params.put("serviceFeedTitle", "PIGMA service Metadata");
+
+        Element inputDoc = InspireAtomUtil.prepareDatasetFeedEltBeforeTransform(datasetMd.getXmlData(false), serviceMdUuid);
 
         Element transformed = InspireAtomUtil.convertDatasetMdToAtom("iso19139", inputDoc, dm, params);
         return transformed;
@@ -162,23 +162,39 @@ public class AtomFeed {
         //
         // One has to call Lib.resource.checkPrivilege(context, id, ReservedOperation.view);
 
+        Map<String, Object> params = getDefaultXSLParams(sm, context);
+
         Element md = dm.getMetadata(id);
         String schema = dm.getMetadataSchema(id);
         if (!InspireAtomUtil.isServiceMetadata(dm, schema, md)) {
             throw new NotFoundException("No service metadata found with uuid:" + uuid);
         }
 
-        Element inputDoc = InspireAtomUtil.prepareServiceFeedEltBeforeTransform(schema, md, dm,
-                getBaseURL(sm, context), context.getLanguage());
+        Element inputDoc = InspireAtomUtil.prepareServiceFeedEltBeforeTransform(schema, md, dm);
 
-        Element transformed = InspireAtomUtil.convertDatasetMdToAtom("iso19139", inputDoc, dm, null);
+        Element transformed = InspireAtomUtil.convertDatasetMdToAtom("iso19139", inputDoc, dm, params);
         return transformed;
     }
 
 
+    private Map<String, Object> getDefaultXSLParams(SettingManager settingManager, ServiceContext context) {
+        Map<String, Object> params = new HashMap<String,Object>();
+        params.put("isLocal", true);
+        params.put("guiLang", context.getLanguage());
+        params.put("baseUrl", getBaseURL(settingManager, context));
+        params.put("nodeName", ApplicationContextHolder.get().getBean(NodeInfo.class).getId());
+
+        return params;
+    }
+
     private String getBaseURL(SettingManager settingManager, ServiceContext context) {
-        String baseUrl = settingManager.getSiteURL(context);
-        return baseUrl.substring(0, baseUrl.length()-5);
+
+        String baseURL = new ServletPathFinder(context.getServlet().getServletContext()).getBaseUrl();
+        String protocol = settingManager.getValue(Geonet.Settings.SERVER_PROTOCOL);
+        String host    = settingManager.getValue(Geonet.Settings.SERVER_HOST);
+        String port    = settingManager.getValue(Geonet.Settings.SERVER_PORT);
+
+        return protocol + "://" + host + (port.equals("80") ? "" : ":" + port + baseURL);
     }
 
     private ServiceContext createServiceContext(String lang, HttpServletRequest request) {
