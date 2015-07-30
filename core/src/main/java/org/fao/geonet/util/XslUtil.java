@@ -523,5 +523,17 @@ public final class XslUtil
         return Long.toString(Math.round(dNumber1 * dNumber2));
     }
 
+    public static String getMax(Object values) {
+        String[] strings = values.toString().split(" ");
+        String max = "";
+
+        for (int i = 0; i < strings.length; i++) {
+            String date = strings[i];
+            if(date.compareTo(max) > 0) {
+                max = date;
+            }
+        }
+        return max;
+    }
 
 }

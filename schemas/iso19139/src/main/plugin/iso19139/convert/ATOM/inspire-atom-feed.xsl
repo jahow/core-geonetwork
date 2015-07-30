@@ -41,7 +41,9 @@
     <xsl:variable name="docLang" select="gmd:language/gmd:LanguageCode/@codeListValue"/>
     <xsl:variable name="titleNode" select="gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:citation/gmd:CI_Citation/gmd:title"/>
     <xsl:variable name="title"><xsl:apply-templates mode="get-translation" select="$titleNode"><xsl:with-param name="lang" select="$guiLang"/></xsl:apply-templates></xsl:variable>
-    <xsl:variable name="updated" select="gmd:dateStamp/gco:DateTime"/>
+    <xsl:variable name="datasetDates" select="string-join(gmd:dateStamp/gco:DateTime|datasets/*//gmd:dateStamp/gco:DateTime, ' ')" />
+
+    <xsl:variable name="updated" select="java:getMax($datasetDates)"/>
 
     <title>
       <xsl:value-of select="gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString" />
