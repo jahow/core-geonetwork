@@ -81,7 +81,7 @@ public class AtomFeed {
      *
      * @param uiLang the language parameter
      * @param spIdentifier the spatial dataset identifier
-     * @param spNamespace the spatial dataset namespace
+     * @param spNamespace the spatial dataset namespace (not used for the moment)
      * @param webRequest the request object
      * @return
      * @throws Exception
@@ -91,7 +91,7 @@ public class AtomFeed {
     public HttpEntity<byte[]> localDatasetDescribe(
             @PathVariable String uiLang,
             @RequestParam("spatial_dataset_identifier_code") String spIdentifier,
-            @RequestParam("spatial_dataset_identifier_namespace") String spNamespace,
+            @RequestParam(value = "spatial_dataset_identifier_namespace", required = false) String spNamespace,
             NativeWebRequest webRequest) throws Exception {
 
         ServiceContext context = createServiceContext(uiLang, webRequest.getNativeRequest(HttpServletRequest.class));

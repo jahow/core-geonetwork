@@ -106,10 +106,10 @@
     <xsl:for-each select="datasets/gmd:MD_Metadata">
       <entry>
         <inspire_dls:spatial_dataset_identifier_code>
-            <xsl:value-of select="gmd:identificationInfo//gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString|gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier/gmd:code/gco:CharacterString"/>
+            <xsl:value-of select="gmd:identificationInfo//gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString|gmd:identificationInfo//gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier/gmd:code/gco:CharacterString"/>
             </inspire_dls:spatial_dataset_identifier_code>
         <inspire_dls:spatial_dataset_identifier_namespace>
-            <xsl:value-of select="gmd:identificationInfo//gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:codeSpace/gco:CharacterString|gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier/gmd:codeSpace/gco:CharacterString"/>
+            <xsl:value-of select="gmd:identificationInfo//gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:codeSpace/gco:CharacterString|gmd:identificationInfo//gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier/gmd:codeSpace/gco:CharacterString"/>
         </inspire_dls:spatial_dataset_identifier_namespace>
         <xsl:apply-templates mode="dataset" select=".">
           <xsl:with-param name="isServiceEntry" select="true()"/>
@@ -491,34 +491,14 @@
         </xsl:choose>
       </xsl:otherwise>
     </xsl:choose>
-    <xsl:if test="$identifier != '' and $codeSpace != ''">
+    <xsl:if test="$identifier != ''">
+      <xsl:variable name="tmpIdentifier" select="if(count($identifier) > 1) then $identifier[1] else $identifier" />
       <xsl:choose>
-        <!-- remote -->
-        <xsl:when test="not($isLocal)">
-          <xsl:choose>
-            <xsl:when test="count($identifier) &gt; 1">
-              <xsl:value-of
-                select="concat($baseUrl,'/opensearch/',$lang,'/describe?spatial_dataset_identifier_code=',$identifier[1],'&amp;spatial_dataset_identifier_namespace=',$codeSpace)" />
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of
-                select="concat($baseUrl,'/opensearch/',$lang,'/describe?spatial_dataset_identifier_code=',$identifier,'&amp;spatial_dataset_identifier_namespace=',$codeSpace)" />
-            </xsl:otherwise>
-          </xsl:choose>
+        <xsl:when test="$codeSpace != ''">
+          <xsl:value-of select="concat($baseUrl,'/', $nodeName, '/', $lang, '/atom.dataset?spatial_dataset_identifier_code=',$identifier[1],'&amp;spatial_dataset_identifier_namespace=',$codeSpace)" />
         </xsl:when>
-        <!-- local -->
         <xsl:otherwise>
-          <!-- TODO: identifier can match both RS_Identifier and MD_Identifier 
-            ... (in the PIGMA provided MD). Which one to take then ? For now, considering 
-            the first ... -->
-          <xsl:choose>
-            <xsl:when test="count($identifier) &gt; 1">
-              <xsl:value-of select="concat($baseUrl,'/', $nodeName, '/', $lang, '/atom.dataset?spatial_dataset_identifier_code=',$identifier[1],'&amp;spatial_dataset_identifier_namespace=',$codeSpace)" />
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="concat($baseUrl,'/', $nodeName, '/', $lang,'/atom.dataset?spatial_dataset_identifier_code=',$identifier,'&amp;spatial_dataset_identifier_namespace=',$codeSpace)" />
-            </xsl:otherwise>
-          </xsl:choose>
+          <xsl:value-of select="concat($baseUrl,'/', $nodeName, '/', $lang,'/atom.dataset?spatial_dataset_identifier_code=',$identifier)" />
         </xsl:otherwise>
       </xsl:choose>
     </xsl:if>
