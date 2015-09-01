@@ -14,7 +14,8 @@
                 xmlns:inspire_dls="http://inspire.ec.europa.eu/schemas/inspire_dls/1.0"
                 exclude-result-prefixes="gmx xsl gmd gco srv java">
 
-  <xsl:variable name="protocol">WWW:DOWNLOAD-1.0-http--download</xsl:variable>
+  <xsl:variable name="protocolD">WWW:DOWNLOAD-1.0-HTTP--DOWNLOAD</xsl:variable>
+  <xsl:variable name="protocolL">WWW:LINK-1.0-HTTP--LINK</xsl:variable>
   <xsl:variable name="applicationProfile">INSPIRE-Download-Atom</xsl:variable>
 
   <xsl:param name="isLocal" select="false()" />
@@ -155,7 +156,7 @@
       </subtitle>
     </xsl:if>
     <xsl:if test="$isServiceEntry">
-      <xsl:for-each select="gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource[upper-case(gmd:protocol/gco:CharacterString) = $protocol
+      <xsl:for-each select="gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource[upper-case(gmd:protocol/gco:CharacterString) = $protocolD
       and gmd:applicationProfile/gco:CharacterString = $applicationProfile]/gmd:description">
         <xsl:variable name="crs" select="normalize-space(.)"/>
         <xsl:variable name="crsLabel" select="/root/gui/schemas/iso19139/labels/element[@name = 'gmd:description']/helper/option[@value=$crs]"/>
@@ -273,10 +274,10 @@
         <email><xsl:value-of select="$authorEmail"/></email>
       </author>
       <!-- iterates over the element of the dataset (creating an <entry /> for each) -->
-    <xsl:choose>
+		<xsl:choose>
       <xsl:when test="not($isLocal)">
         <xsl:for-each
-          select="gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource[upper-case(gmd:protocol/gco:CharacterString)=$protocol and gmd:applicationProfile/gco:CharacterString=$applicationProfile]">
+          select="gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource[upper-case(gmd:protocol/gco:CharacterString)=$protocolD and gmd:applicationProfile/gco:CharacterString=$applicationProfile]">
           <xsl:variable name="crs" select="normalize-space(gmd:description)" />
           <xsl:if test="$requestedCRS='' or $requestedCRS=$crs">
             <entry>
@@ -329,7 +330,7 @@
         <xsl:for-each select="./gmd:distributionInfo/gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource">
             <xsl:variable name="currentProtocol" select="./gmd:protocol/gco:CharacterString/text()" />
             <xsl:variable name="currentAppProfile" select="./gmd:applicationProfile/gco:CharacterString/text()" />
-            <xsl:if test="$currentProtocol=$protocol and $currentAppProfile=$applicationProfile">
+			<xsl:if test="(upper-case($currentProtocol)=$protocolD or upper-case($currentProtocol)=$protocolL) and $currentAppProfile=$applicationProfile">
                 <entry>
                   <inspire_dls:spatial_dataset_identifier_code>
                     <xsl:value-of select="$identifierCode" />
