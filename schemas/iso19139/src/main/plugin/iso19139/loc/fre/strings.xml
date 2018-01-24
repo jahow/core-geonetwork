@@ -95,5 +95,5 @@
   <when>Quand</when>
   <where>Où</where>
   <how>Comment</how>
-  <!-- <addOnline>Ajouter une ressource en ligne</addOnline> -->
+  <placeKeyword>Localisation géographique</placeKeyword>
 </strings>
