@@ -19,7 +19,6 @@
   <inspire>INSPIRE</inspire>
   <resource>Resource</resource>
   <xml>XML</xml>
-  <minifiche>Mini-fiche</minifiche>
   <metadata>Metadata</metadata>
   <identificationInfo>Identification</identificationInfo>
   <distributionInfo>Distribution</distributionInfo>
@@ -86,4 +85,14 @@
   <add-resource-idHelp>Compose the resource identifier using the catalog URL and the metadata identifier (eg. http://www.organization.org/catalogue/5391bf69-44bc-4ea0-8cc0-6cf6c3bc81ae).</add-resource-idHelp>
   <add-extent-from-geokeywords>Compute extent from keyword</add-extent-from-geokeywords>
   <add-extent-from-geokeywordsHelp>Analyze each keyword of type place and add matching extent.</add-extent-from-geokeywordsHelp>
+
+  <!-- custom PIGMA -->
+  <minifiche>Mini-fiche</minifiche>
+  <dataAccess>Access to data</dataAccess>
+  <what>What</what>
+  <who>Who</who>
+  <when>When</when>
+  <where>Where</where>
+  <how>How</how>
+  <!-- <addOnline>Add an online resource</addOnline> -->
 </strings>
