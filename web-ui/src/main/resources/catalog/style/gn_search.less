@@ -31,17 +31,32 @@
     margin-bottom: 0;
   }
   .list-group-item {
-    padding: 0.1em;
+    padding: 0.2em;
     //max-height: 22px;
     color: @gray;
     border: none;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
     label {
       margin-bottom: 0px;
       //width: 90%; /* hack */
       cursor: pointer;
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      & > span.gn-facet-label {
+        white-space: nowrap;
+        flex-shrink: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
     }
     label.gn-facet-active {
       color: @gray-darker
+    }
+    & > * {
+      flex-shrink: 0;
     }
   }
   .gn-facet-count, .list-group-item > span.fa {
@@ -478,7 +493,7 @@ span.gn-facet-label:first-letter {
 
 .relatedMd {
   .relatedRecord {
-    float:left; 
+    float:left;
     padding:8px;
     cursor: pointer;
   }
