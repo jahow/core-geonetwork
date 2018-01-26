@@ -151,10 +151,6 @@
           <loc>
             <xsl:value-of select="$env/system/server/protocol"/>://<xsl:value-of select="$env/system/server/host"/>:<xsl:value-of select="$env/system/server/port"/><xsl:value-of select="/root/gui/locService"/>/md.format.html?id=<xsl:value-of select="$id"/>&amp;xsl=pigma_seo
           </loc>
-          <lastmod><xsl:value-of select="$changedate"/></lastmod>
-          <geo:geo>
-            <geo:format><xsl:value-of select="$schemaid"/></geo:format>
-          </geo:geo>
         </url>
       </xsl:for-each>
     </urlset>
