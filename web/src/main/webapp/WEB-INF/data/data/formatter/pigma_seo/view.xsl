@@ -12,11 +12,18 @@
   <xsl:variable name="mdKeywords" select="$md/gmd:identificationInfo//gmd:descriptiveKeywords/gmd:MD_Keywords/gmd:keyword/gco:CharacterString/text()"/>
   <xsl:variable name="orgLogo" select="$md/gmd:identificationInfo//gmd:pointOfContact[1]/gmd:CI_ResponsibleParty/gmd:contactInfo/gmd:CI_Contact/gmd:contactInstructions/gmx:FileName/@src"/>
   <xsl:variable name="orgWebsite" select="string-join($md/gmd:identificationInfo//gmd:pointOfContact/gmd:CI_ResponsibleParty/gmd:contactInfo/gmd:CI_Contact/gmd:onlineResource/gmd:CI_OnlineResource/gmd:linkage/gmd:URL/text(), '')" />
-  <xsl:variable name="graphicOverview" select="$md/gmd:identificationInfo[1]//gmd:graphicOverview/gmd:MD_BrowseGraphic[gmd:fileDescription/gco:CharacterString='thumbnail']/gmd:fileName/gco:CharacterString/text()"/>
+  <xsl:variable name="graphicOverview" select="$md/gmd:identificationInfo[1]//gmd:graphicOverview/gmd:MD_BrowseGraphic[1]/gmd:fileName/gco:CharacterString/text()"/>
   <xsl:variable name="catalogUrl" select="'/geonetwork'"/>
   <xsl:variable name="mdUrl" select="string-join(($catalogUrl, '/srv/fre/catalog.search#/metadata/', $mdUuid), '')"/>
   <xsl:variable name="mfappUrl" select="'/mapfishapp/'"/>
-
+  <xsl:variable name="thumbnailUrl">
+    <xsl:if test="not(contains($graphicOverview, 'http'))">
+      /geonetwork/srv/fre/resources.get?fname=<xsl:value-of select="$graphicOverview"/>&amp;uuid=<xsl:value-of select="$mdUuid"/>
+    </xsl:if>
+    <xsl:if test="contains($graphicOverview, 'http')">
+      <xsl:value-of select="$graphicOverview"/>
+    </xsl:if>
+  </xsl:variable>
 
   <xsl:template match="gmd:identificationInfo//gmd:citation//gmd:date">
     <xsl:variable name="dateType" select="./gmd:CI_Date/gmd:dateType/gmd:CI_DateTypeCode/@codeListValue" />
@@ -33,7 +40,7 @@
   </xsl:template>
 
   <xsl:template match="/">
-    <html>
+    <html xmlns:og="http://ogp.me/ns#">
       <head>
         <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
         <xsl:if test="$mdTitle != ''">
@@ -44,10 +51,11 @@
           <meta name="keywords" content="{$keywordStr}" />
         </xsl:if>
         <meta name="description" content="{$mdAbstract}" />
-        <link rel="image_src" href="/geonetwork/srv/fre/resources.get?fname={$graphicOverview}&amp;uuid={$mdUuid}" />
+        <link rel="image_src" href="{$thumbnailUrl}" />
         <meta property="og:title" content="{$mdTitle}" />
+        <meta property="og:type" content="article" />
         <meta property="og:url" content="{$mdUrl}" />
-        <meta property="og:image" content="/geonetwork/srv/fre/resources.get?fname={$graphicOverview}&amp;uuid={$mdUuid}" />
+        <meta property="og:image" content="{$thumbnailUrl}" />
       </head>
       <body>
         <div class="container">
@@ -68,6 +76,12 @@
           <div class="row vert-space text-justify">
             <!--  partie gauche -->
             <div class="col-md-9 metadata-content">
+              <dl class="dl-horizontal">
+                <dt>Identifiant</dt>
+                <dd>
+                  <xsl:value-of select="$mdUuid"/>
+                </dd>
+              </dl>
               <dl class="dl-horizontal">
                 <dt>Résumé</dt>
                 <dd>
@@ -164,7 +178,7 @@
             <img src="/img/bandeau-partenaires.jpg" alt="logos des partenaires"/>
           </footer>
         </div>
-    </body>
+      </body>
     </html>
   </xsl:template>
 </xsl:stylesheet>
