@@ -17,10 +17,10 @@
   <xsl:variable name="mdUrl" select="string-join(($catalogUrl, '/srv/fre/catalog.search#/metadata/', $mdUuid), '')"/>
   <xsl:variable name="mfappUrl" select="'/mapfishapp/'"/>
   <xsl:variable name="thumbnailUrl">
-    <xsl:if test="not(contains($graphicOverview, 'http'))">
+    <xsl:if test="not(starts-with($graphicOverview, 'http'))">
       /geonetwork/srv/fre/resources.get?fname=<xsl:value-of select="$graphicOverview"/>&amp;uuid=<xsl:value-of select="$mdUuid"/>
     </xsl:if>
-    <xsl:if test="contains($graphicOverview, 'http')">
+    <xsl:if test="starts-with($graphicOverview, 'http')">
       <xsl:value-of select="$graphicOverview"/>
     </xsl:if>
   </xsl:variable>
@@ -51,6 +51,7 @@
           <meta name="keywords" content="{$keywordStr}" />
         </xsl:if>
         <meta name="description" content="{$mdAbstract}" />
+        <link rel="canonical" href="{$mdUrl}" />
         <link rel="image_src" href="{$thumbnailUrl}" />
         <meta property="og:title" content="{$mdTitle}" />
         <meta property="og:type" content="article" />
@@ -112,25 +113,12 @@
                   <xsl:value-of select="string-join($mdKeywords, ', ')"/>
                 </dd>
               </dl>
-              <xsl:choose>
-                <xsl:when test="$graphicOverview != '' and starts-with($graphicOverview, 'http')">
-                  <dl class="dl-horizontal">
-                    <dt>Aperçu</dt>
-                    <dd>
-                      <img class="graphic-overview" src="{$graphicOverview}" alt="Aperçu"/>
-                    </dd>
-                  </dl>
-                </xsl:when>
-                <!-- incomplete / implicit image url, we have to complete it by hand -->
-                <xsl:when test="$graphicOverview != '' and not(starts-with($graphicOverview, 'http'))">
-                  <dl class="dl-horizontal">
-                    <dt>Aperçu</dt>
-                    <dd>
-                      <img class="graphic-overview" src="/geonetwork/srv/fre/resources.get?fname={$graphicOverview}&amp;uuid={$mdUuid}" alt="Aperçu"/>
-                    </dd>
-                  </dl>
-                </xsl:when>
-              </xsl:choose>
+              <dl class="dl-horizontal">
+                <dt>Aperçu</dt>
+                <dd>
+                  <img class="graphic-overview" src="{$graphicOverview}" alt="Aperçu"/>
+                </dd>
+              </dl>
             </div>
             <!-- right part: links -->
             <div class="col-md-3 text-center metadata-links">
