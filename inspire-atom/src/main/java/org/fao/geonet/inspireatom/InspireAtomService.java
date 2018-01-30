@@ -22,22 +22,28 @@
 //==============================================================================
 package org.fao.geonet.inspireatom;
 
+import javax.transaction.Transactional;
+
 import jeeves.server.context.ServiceContext;
+
 import org.apache.commons.lang.StringUtils;
 import org.fao.geonet.csw.common.util.Xml;
 import org.fao.geonet.domain.InspireAtomFeed;
+import org.fao.geonet.exceptions.ResourceNotFoundEx;
 import org.fao.geonet.inspireatom.util.InspireAtomUtil;
 import org.fao.geonet.repository.InspireAtomFeedRepository;
 import org.jdom.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
 
 @Component
 @Transactional
 public class InspireAtomService {
+
+    // service example:
+    // http://www.weichand.de/inspire/dls/verwaltungsgrenzen.xml
+    // dataset example:
+    // http://www.weichand.de/inspire/dls/verwaltungsgrenzen.DEBY_125cce16-7ae1-3cf0-96e2-05a4453f3cb1.xml
 
     @Autowired
     private InspireAtomFeedRepository _repository;
@@ -45,6 +51,9 @@ public class InspireAtomService {
     public Element retrieveFeed(ServiceContext context, int metadataId) throws Exception {
         // Check the metadata has an atom document.
         InspireAtomFeed feed = _repository.findByMetadataId(metadataId);
+        if (feed == null) {
+            throw new ResourceNotFoundEx("Atom feed for metadata " + metadataId + " not found.");
+        }
         String atomUrl = feed.getAtomUrl();
 
         if (StringUtils.isEmpty(atomUrl)) throw new Exception("Metadata has no atom feed");

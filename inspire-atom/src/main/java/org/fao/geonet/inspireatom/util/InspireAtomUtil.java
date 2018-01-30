@@ -22,29 +22,36 @@
 //==============================================================================
 package org.fao.geonet.inspireatom.util;
 
+import java.net.URL;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import jeeves.constants.Jeeves;
 import jeeves.server.ServiceConfig;
 import jeeves.server.context.ServiceContext;
+
+import org.apache.commons.lang.StringUtils;
 import org.fao.geonet.GeonetContext;
 import org.fao.geonet.constants.Geonet;
 import org.fao.geonet.domain.Metadata;
+import org.fao.geonet.exceptions.MetadataNotFoundEx;
+import org.fao.geonet.kernel.DataManager;
 import org.fao.geonet.kernel.search.LuceneSearcher;
 import org.fao.geonet.kernel.search.MetaSearcher;
 import org.fao.geonet.kernel.search.SearchManager;
 import org.fao.geonet.kernel.search.SearcherType;
+import org.fao.geonet.kernel.setting.SettingManager;
+import org.fao.geonet.lib.Lib;
 import org.fao.geonet.utils.GeonetHttpRequestFactory;
 import org.fao.geonet.utils.Xml;
 import org.fao.geonet.utils.XmlRequest;
-import org.apache.commons.lang.StringUtils;
-
-import org.fao.geonet.kernel.DataManager;
-import org.fao.geonet.kernel.setting.SettingManager;
-import org.fao.geonet.lib.Lib;
+import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.Namespace;
-
-import java.net.URL;
-import java.util.*;
 
 /**
  * Utility class for INSPIRE Atom.
@@ -61,6 +68,9 @@ public class InspireAtomUtil {
 
     /** Xslt process to get the atom feed link from the metadata. **/
     private static final String EXTRACT_ATOM_FEED = "extract-atom-feed.xsl";
+
+    /** Xslt process to get the atom feed link from the metadata. **/
+    private static final String TANSFORM_MD_TO_ATOM_FEED = "inspire-atom-feed.xsl";
 
     /**
      * Issue an http request to retrieve the remote Atom feed document.
@@ -301,5 +311,96 @@ public class InspireAtomUtil {
         }
 
         return uuid;
+    }
+
+    public static Element prepareServiceFeedEltBeforeTransform(final String schema,
+                                             final Element md,
+                                             final DataManager dataManager)
+            throws Exception {
+
+        List<String> datasetsUuids = extractRelatedDatasetsIdentifiers(schema, md, dataManager);
+        Element root = new Element("root");
+        Element serviceElt = new Element("service");
+        Element datasetElt = new Element("datasets");
+
+        root.addContent(serviceElt);
+        md.addContent(datasetElt);
+
+        for(String uuid : datasetsUuids) {
+            String id = dataManager.getMetadataId(uuid);
+            if (StringUtils.isEmpty(id)) throw new MetadataNotFoundEx(uuid);
+            Element ds = dataManager.getMetadata(id);
+            datasetElt.addContent(ds);
+
+        }
+        serviceElt.addContent(md);
+
+        return root;
+    }
+
+    public static Element prepareDatasetFeedEltBeforeTransform(
+                       final Element md,
+                       final String serviceMdUuid)
+            throws Exception {
+
+        Document doc = new Document(new Element("root"));
+        doc.getRootElement().addContent(new Element("dataset").addContent(md));
+        doc.getRootElement().addContent(new Element("serviceIdentifier").setText(serviceMdUuid));
+
+        return doc.getRootElement();
+    }
+
+
+    public static String convertIso19119ToAtomFeed(final String schema,
+                                            final Element md,
+                                            final DataManager dataManager,
+                                            final boolean isLocal) throws Exception {
+
+        java.nio.file.Path styleSheet = dataManager.getSchemaDir(schema).
+                resolve("convert/ATOM/").resolve(TANSFORM_MD_TO_ATOM_FEED);
+
+        Map<String,Object> params = new HashMap<String,Object>();
+        params.put("isLocal", isLocal);
+
+        Element atomFeed = Xml.transform(md, styleSheet, params);
+        md.detach();
+        return Xml.getString(atomFeed);
+
+    }
+
+    /**
+     * Converts a dataset MD into an INSPIRE atom feed.
+     *
+     * @param schema the target schema (mainly iso19139)
+     * @param md The document on which the XSL should be applied, the following format should be followed:
+     *
+     * <root>
+     *   <dataset>
+     *     <gmd:MD_Metadata />
+     *   </dataset>
+     *   <serviceIdentifier>[Service Metadata UUID]</serviceIdentifier>
+     *   ...
+     * </root>
+     *
+     * @param dataManager
+     * @param params extra parameters to pass to the XSL transformation, see inspire-atom-feed.xsl for the details:
+     *     <xsl:param name="isLocal" select="true()" />
+     *     <xsl:param name="serviceFeedTitle" select="string('The parent service feed')" />
+     *
+     * @return the ATOM feed as a JDOM element.
+     * @throws Exception
+     *
+     * See InspireAtomUtilTest.testLocalDatasetTransform() for an example of calling this method.
+     */
+    public static Element convertDatasetMdToAtom(final String schema, final Element md, final DataManager dataManager,
+            Map<String,Object> params) throws Exception {
+
+        Path styleSheet = getAtomFeedXSLStylesheet(schema, dataManager);
+        return Xml.transform(md, styleSheet, params);
+    }
+
+    private static Path getAtomFeedXSLStylesheet(final String schema, final DataManager dataManager) {
+        return dataManager.getSchemaDir(schema).resolve("convert/ATOM/")
+                .resolve(TANSFORM_MD_TO_ATOM_FEED);
     }
 }
