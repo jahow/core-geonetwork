@@ -44,11 +44,11 @@
         </label>
         <label data-ng-show="searchInfo.facet['topicCats'].length > 0">
           <input type="radio" name="browse" value="topics" data-ng-model="browse"/>
-          <span data-translate="">topics</span>
+          <span data-translate="">topicCats</span>
         </label>
       </span>
       <label data-ng-show="searchInfo.facet['inspireThemes'].length > 0 && searchInfo.facet['topicCats'].length == 0"><span data-translate="">inspireThemes</span></label>
-      <label data-ng-show="searchInfo.facet['topicCats'].length > 0 && searchInfo.facet['inspireThemes'].length == 0"><span data-translate="">topics</span></label>
+      <label data-ng-show="searchInfo.facet['topicCats'].length > 0 && searchInfo.facet['inspireThemes'].length == 0"><span data-translate="">topicCats</span></label>
       <div class="row">
         <span id="chips-card" data-ng-repeat="(key, facet) in searchInfo.facet['topicCats']"
           class="col-xs-6 col-sm-4 col-lg-3" data-ng-show="browse === 'topics'">
