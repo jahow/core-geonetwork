@@ -17,7 +17,7 @@
     'gnConfigService',
     'gnConfig',
     function($scope, $routeParams, $http, $rootScope, $translate, $compile,
-            gnSearchManagerService, 
+            gnSearchManagerService,
             gnUtilityService,
             gnMetadataManager,
             gnConfigService,
@@ -145,13 +145,31 @@
 
         // Sort template list
         function compare(a, b) {
-          if (a.title < b.title)
+          if ((a.title || a.defaultTitle) < (b.title || b.defaultTitle))    // PIGMA: use default title
             return -1;
-          if (a.title > b.title)
+          if ((a.title || a.defaultTitle) > (b.title || b.defaultTitle))
             return 1;
           return 0;
         }
         tpls.sort(compare);
+
+        // SPECIFIC PIGMA: mini fiches
+        var minifiches = [];
+        var inspireTpls = [];
+        tpls = tpls.filter(function(md) {
+          if (/(mini.?fiche)/i.test(md.title || md.defaultTitle)) {
+            minifiches.push(md);
+            return false;
+          }
+          if (/(inspire)/i.test(md.title || md.defaultTitle)) {
+            inspireTpls.push(md);
+            return false;
+          }
+          return true;
+        });
+        $scope.minifiches = minifiches;
+        $scope.inspireTpls = inspireTpls;
+        // end specific pigma
 
         $scope.tpls = tpls;
         $scope.activeType = type;
