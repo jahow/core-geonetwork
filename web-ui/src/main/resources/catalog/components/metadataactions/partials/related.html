@@ -71,11 +71,11 @@
       </p>
       <p class="text-muted"
          data-ng-if="mainType === 'LINKDOWNLOAD'">
-        {{r.name}}
+        {{r.name + '' || r.title}}
       </p>
       <p class="text-muted"
          data-ng-if="mainType === 'LINK'">
-        {{r.name}}
+        {{r.name + '' || r.title}}
       </p>
 		</div>
 		<div class="col-xs-4">
