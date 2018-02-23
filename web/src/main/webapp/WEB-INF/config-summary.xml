@@ -4,31 +4,31 @@
     xmlns:bean="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="
-        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd 
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.fao.org/geonetwork/spring http://www.fao.org/geonetwork/spring/gn-spring.xsd
     "
 >
-<!-- 
-    Configuration of the taxonomy index used for faceting and 
+<!--
+    Configuration of the taxonomy index used for faceting and
     formatting/building facet summaries
-	
+
     Each facet to be indexed is defined in the facets element. The facets element
     lists the facets to index and how they should be indexed using attributes on facet elements as follows:
-	
+
     * name: the name of the facet
     * indexKey: the name of the indexing field to be used for the facet
     * label: the label to use for the facet in returned summaries
     * classifier: (optional) a reference to a spring bean that should be used to
-        determine facet values for the indexing field.  
+        determine facet values for the indexing field.
         The bean must implement the org.fao.kernel.search.classifier.Classifier interface
         Defaults to a classifier which uses the value of the field to be indexed
 
     When a facet definitionis modified or added, the index MUST be rebuilt.
 
-    How facet summaries should be built and formatted for each summary type is defined 
+    How facet summaries should be built and formatted for each summary type is defined
     in the summaryTypes element. The summaryTypes element contains a number of summary type elements each
-    of which define a facet summary that can be configured for a service. Each summary type 
-    element contains a number of item elements defining facets to be returned and how they 
+    of which define a facet summary that can be configured for a service. Each summary type
+    element contains a number of item elements defining facets to be returned and how they
     should be formatted as follows:
 
     * facet: the name of a facet defined above
@@ -36,9 +36,9 @@
     * (optional) sortOrder: asc or desc. Defaults is descendant.
     * (optional) max: the number of values to be returned for the facet. Defaults to 10.
     * (optional) depth: the depth to which hierarchical facets should be summarised. Defaults to 1.
-    * (optional) format: the format to be used for generating facet summary elements. Defaults to 
+    * (optional) format: the format to be used for generating facet summary elements. Defaults to
         'FACET_NAME'. Can also be 'DIMENSION', which uses a top level
-        dimension tag and category tags for sub-categories which is more suitable for hierarchical facets. 
+        dimension tag and category tags for sub-categories which is more suitable for hierarchical facets.
     * (optional) translator: Define a DB translator to retrieve label from description
         tables (eg. categoriesdes) or codelist translator to retrieve label from schema
         codelists files.
@@ -104,28 +104,22 @@
 
       <summaryTypes>
         <summaryType name="details" format="DIMENSION">
-          <item facet="type" translator="codelist:gmd:MD_ScopeCode"/>
+        <!-- custom facets PIGMA -->
           <item facet="topicCat" translator="codelist:gmd:MD_TopicCategoryCode" max="20"/>
           <item facet="inspireThemeURI" sortBy="value" sortOrder="asc" max="35" translator="term:http://geonetwork-opensource.org/inspire-theme"/>
-          <!--<item facet="inspireTheme" sortBy="value" sortOrder="asc" max="35"/>-->
-          <!--<item facet="inspireThemeWithAc" sortBy="value" sortOrder="asc" max="35"/>-->
           <item facet="keyword" max="15"/>
-          <item facet="orgName" max="25"/>
-          <item facet="sourceCatalog" translator="db:org.fao.geonet.repository.SourceRepository:findOneByUuid"/>
-          <item facet="createDateYear" sortBy="value" sortOrder="desc" max="40"/>
+          <item facet="type" translator="codelist:gmd:MD_ScopeCode"/>
           <item facet="format" max="15" sortBy="value" sortOrder="asc"/>
           <item facet="spatialRepresentationType" translator="codelist:gmd:MD_SpatialRepresentationTypeCode"/>
-          <item facet="maintenanceAndUpdateFrequency" translator="codelist:gmd:MD_MaintenanceFrequencyCode"/>
-          <item facet="status" translator="codelist:gmd:MD_ProgressCode"/>
           <item facet="serviceType"/>
           <item facet="denominator" sortBy="numValue" sortOrder="desc"/>
           <item facet="resolution" sortBy="numValue" sortOrder="desc"/>
-          <!--
-          <item facet="region"
-                translator="term:http://geonetwork-opensource.org/thesaurus/naturalearth-and-seavox"/>
-          <item facet="gemetKeyword"
-                translator="term:http://geonetwork-opensource.org/gemet"/>
-          -->
+          <item facet="sourceCatalog" translator="db:org.fao.geonet.repository.SourceRepository:findOneByUuid"/>
+          <item facet="orgName" max="25"/>
+          <item facet="createDateYear" sortBy="value" sortOrder="desc" max="40"/>
+          <item facet="maintenanceAndUpdateFrequency" translator="codelist:gmd:MD_MaintenanceFrequencyCode"/>
+          <item facet="status" translator="codelist:gmd:MD_ProgressCode"/>
+        <!-- end custom facets PIGMA -->
       </summaryType>
 
       <summaryType name="manager" format="DIMENSION">
