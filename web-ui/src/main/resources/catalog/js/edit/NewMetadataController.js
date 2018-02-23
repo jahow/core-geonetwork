@@ -214,13 +214,16 @@
 
         }
 
+        // custom PIGMA: use minifiche view if minifiche template
         return gnMetadataManager.create(
             $scope.activeTpl['geonet:info'].id,
             $scope.ownerGroup,
             isPublic || false,
             $scope.isTemplate,
             $routeParams.childOf ? true : false,
-            undefined,
+            /(mini.?fiche)/i.test(
+              $scope.activeTpl.title || $scope.activeTpl.defaultTitle)
+              ? 'minifiche': undefined,
             metadataUuid
         ).error(function(data) {
           $rootScope.$broadcast('StatusUpdated', {
