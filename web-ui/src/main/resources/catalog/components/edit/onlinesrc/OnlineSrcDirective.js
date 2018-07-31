@@ -690,6 +690,8 @@
                             gnCurrentEdit.metadata.getLinksByType('OGC:WMS'));
                         links = links.concat(
                             gnCurrentEdit.metadata.getLinksByType('wms'));
+                        links = links.concat(
+                            gnCurrentEdit.metadata.getLinksByType('')); // PIGMA specific: add any link as a fallback
                         var serviceUrl = links[0].url;
                         scope.loadWMSCapabilities(serviceUrl);
                         scope.srcParams.url = serviceUrl;
