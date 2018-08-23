@@ -54,16 +54,16 @@
         }
       });
 
-      // add PIGMA wms
-      gnSearchSettings.searchMap.addLayer(
-        new ol.layer.Image({
-          source: new ol.source.ImageWMS({
-            url: 'https://www.pigma.org/geoserver/pigma_3857/wms',
-            params: {'LAYERS': 'pigma_3857_z_competence'}
-          }),
-          opacity: 0.6
-        })
-      );
+      // add PIGMA wms (disabled for now)
+      // gnSearchSettings.searchMap.addLayer(
+      //   new ol.layer.Image({
+      //     source: new ol.source.ImageWMS({
+      //       url: 'https://www.pigma.org/geoserver/pigma_3857/wms',
+      //       params: {'LAYERS': 'pigma_3857_z_competence'}
+      //     }),
+      //     opacity: 0.6
+      //   })
+      // );
     }]);
 
 
