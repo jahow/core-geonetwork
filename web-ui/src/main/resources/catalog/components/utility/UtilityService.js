@@ -517,4 +517,44 @@
       return tree;
     };
   }]);
+
+  // taken from ngeo:
+  // https://github.com/camptocamp/ngeo/blob/85506942072581365de715a4cd7e5ecb7a2d334d/src/misc/debounce.js
+  module.factory('gnDebounce', ['$timeout', function($timeout) {
+    /**
+     * @template {function(?): void} T args
+     * @param {T} func The function to debounce.
+     * @param {number} wait The wait time in ms.
+     * @param {boolean} invokeApply Whether the call to `func` is wrapped into an `$apply` call.
+     * @param {angular.ITimeoutService} $timeout Angular timeout service.
+     * @return {T} The wrapper function.
+     * @private
+     * @hidden
+     */
+    function debounce(func, wait, invokeApply, $timeout) {
+      /**
+       * @type {?angular.IPromise<void>}
+       */
+      let timeout = null;
+      return /** @type {T} */(
+        /**
+         * @this {any} The context
+         */
+        function(...args) {
+          const later = () => {
+            timeout = null;
+            func.apply(this, args);
+          };
+          if (timeout !== null) {
+            $timeout.cancel(timeout);
+          }
+          timeout = ($timeout(later, wait, invokeApply));
+        }
+      );
+    }
+
+    return (func, wait, invokeApply) => {
+      return debounce(func, wait, invokeApply, $timeout);
+    };
+  }]);
 })();
