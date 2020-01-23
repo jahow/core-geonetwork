@@ -76,27 +76,26 @@
                   }
                 });
 
-                var categoryLabel = decodeURIComponent(queryParts[1]);
-                function lookupCategory(categories, currentQueryPartIndex) {
-                  categories.forEach(function (c) {
+                var categoryLabel;
+                function lookupCategory(subtree, currentQueryPartIndex) {
+                  if (!subtree.category) { return false;}
+                  subtree.category.forEach(function (c) {
                     if (c['@value'] === decodeURIComponent(queryParts[currentQueryPartIndex])) {
                       currentQueryPartIndex++;
                       if (currentQueryPartIndex === queryParts.length) {
                         categoryLabel = c['@label'];
                         return true;
-                      } else if(c.category) {
-                        lookupCategory(c.category, currentQueryPartIndex);
                       }
+                      lookupCategory(c, currentQueryPartIndex);
                     }
                   })
                 }
-                if (dimension.category) {
-                  lookupCategory(dimension.category, 1);
-                }
+
+                lookupCategory(dimension, 1);
 
                 var filter = {
                   key: dimension['@label'],
-                  value: categoryLabel,
+                  value: categoryLabel | decodeURIComponent(queryParts[1],
                   isFacet: true,
                   facetKey: dimension['@name']
                 };
