@@ -1449,8 +1449,8 @@
             gnWmsQueue.add(url, name);
 
             var params = {};
-            if (layer != '') {
-              params.LAYERS = layer;
+            if (!!layer) {
+              params.LAYERS = 'show:' + layer;
             }
             var layerOptions = {
               url: url,
@@ -1483,10 +1483,33 @@
 
               // we're pointing at a layer group
               if (!!info.mapName) {
+                var layerFound = !!layer ? info.layers.some(function(layerObj) {
+                  return layerObj.id == layer
+                }) : true;
+                if (!layerFound) {
+                  gnAlertService.addAlert({
+                    msg: $translate.instant('esriLayerNotFound', {
+                      layer: layer,
+                      url: layerInfoUrl
+                    }),
+                    delay: 20000,
+                    type: 'danger'});
+                  throw new Error('ESRI layer name was not found in service: ' + layer);
+                }
                 return {
                   extent: info.fullExtent,
                   title: info.mapName
                 };
+              }
+              if (info.id != layer) {
+                gnAlertService.addAlert({
+                  msg: $translate.instant('esriLayerInvalid', {
+                    layer: layer,
+                    url: layerInfoUrl
+                  }),
+                  delay: 20000,
+                  type: 'danger'});
+                throw new Error('ESRI layer id did not match the provided name: ' + layer);
               }
               return {
                 extent: info.extent,

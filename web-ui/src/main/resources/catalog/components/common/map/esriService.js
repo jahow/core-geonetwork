@@ -143,7 +143,7 @@
          */
         measureLegend: function(context, json, skipLayerName) {
           var width = 100;
-          var height = 0;
+          var height = 1;
           for (var i = 0; i < json.layers.length; i++) {
             var layer = json.layers[i];
             if (!skipLayerName) {

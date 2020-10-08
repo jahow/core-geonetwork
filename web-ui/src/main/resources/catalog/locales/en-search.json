@@ -525,5 +525,7 @@
   "GUFname": "Your Name",
   "GUFemail": "Your Email address",
   "GUForganization": "Your Organization",
-  "printUnsupportedLayerTypes": "The following layer types are present but cannot be printed"
+  "printUnsupportedLayerTypes": "The following layer types are present but cannot be printed",
+  "esriLayerNotFound": "The layer <strong>{{layer}}</strong> was not found in <a href=\"{{url}}\">this ArcGIS REST service</a>.",
+  "esriLayerInvalid": "The provided layer name <strong>{{layer}}</strong> does not match <a href=\"{{url}}\">this ArcGIS REST layer id</a>."
 }
