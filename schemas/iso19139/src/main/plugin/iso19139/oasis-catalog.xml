@@ -49,6 +49,8 @@
     uri="schema/gco/gco.xsd"/>
   <system systemId="http://www.isotc211.org/2005/gmd/gmd.xsd"
           uri="schema/gmd/gmd.xsd"/>
+  <system systemId="http://schemas.opengis.net/iso/19139/20070417/gmd/gmd.xsd"
+          uri="https://repository.gdi-de.org/schemas/geonetwork/2020-12-11/csw/2.0.2/profiles/apiso/1.0.1/apiso.xsd"/>
   <system systemId="http://www.isotc211.org/2005/gco/gco.xsd"
           uri="schema/gco/gco.xsd"/>
   <system systemId="http://www.isotc211.org/2005/gmx/gmx.xsd"
